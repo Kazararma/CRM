@@ -1,0 +1,92 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'super_admin'];
+    }
+
+    // BROAD ACCESS TO USERS
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      
+      match /{allSubcollections=**} {
+        allow read, write: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      }
+    }
+
+    // BROAD ACCESS TO PROJECTS
+    match /projects/{projectId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+      
+      // Explicitly allow reading any subcollection for any logged in user
+      match /{allSubcollections=**} {
+        allow read: if isAuthenticated();
+        allow write: if isAdmin() || (isAuthenticated() && allSubcollections == 'workLogs');
+      }
+    }
+
+    // BROAD ACCESS TO ACTIVITY LOGS
+    match /projectActivityLogs/{logId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // LEADS MANAGEMENT
+    match /leads/{leadId} {
+      allow read, write: if isAdmin();
+      
+      // Subcollections like lead_logs
+      match /{allSubcollections=**} {
+        allow read, write: if isAdmin();
+      }
+    }
+
+    // OPPORTUNITIES MANAGEMENT
+    match /opportunities/{opportunityId} {
+      allow read, write: if isAdmin();
+
+      // Subcollections like opportunity_logs
+      match /{allSubcollections=**} {
+        allow read, write: if isAdmin();
+      }
+    }
+
+    // COLLECTION GROUPS
+    match /{path=**}/shifts/{shiftId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || (isAuthenticated() && (
+        request.auth.uid == resource.data.userId || 
+        request.auth.uid == resource.data.authorUid
+      ));
+    }
+    
+    match /{path=**}/workLogs/{logId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+    
+    match /{path=**}/stageChangeLogs/{logId} {
+      allow read: if isAuthenticated();
+    }
+    // SALARY TRANSACTIONS
+    match /salary_transactions/{txId} {
+      allow read: if isAuthenticated() && (isAdmin() || resource.data.workerId == request.auth.uid);
+      allow create: if isAdmin();
+      allow update: if isAuthenticated() && (
+        isAdmin() || 
+        (resource.data.workerId == request.auth.uid && 
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'isResolved', 'confirmedAt', 'disputedAt', 'disputeNote']))
+      );
+      allow delete: if isAdmin();
+    }
+  }
+}
