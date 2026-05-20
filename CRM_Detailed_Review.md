@@ -1,7 +1,7 @@
-# Wavelet CRM Product Review & Specifications
+# CRM Product Review & Specifications
 
 ## 1. Product Overview
-Wavelet CRM (formerly Nexus CRM) is a comprehensive, web-based Customer Relationship Management system designed for internal team management. It streamlines project lifecycles, sales pipelines, and team productivity within a single, cohesive platform.
+CRM (formerly Nexus CRM) is a comprehensive, web-based Customer Relationship Management system designed for internal team management. It streamlines project lifecycles, sales pipelines, and team productivity within a single, cohesive platform.
 
 The application prioritizes data integrity through a strict Role-Based Access Control (RBAC) system and provides real-time visibility into project health, financial metrics, and worker contributions.
 
@@ -17,7 +17,7 @@ The system identifies three primary user roles, each with specific access levels
 ## 3. Core Features & Functionality
 
 ### 3.1 Project Lifecycle Management
-Wavelet CRM tracks projects from inception to final payment. Key features include:
+CRM tracks projects from inception to final payment. Key features include:
 *   **Dynamic Status Tracking:** Projects transition through 'Ongoing', 'Completed', 'Cancelled', and 'Client Paid' stages.
 *   **Assignment System:** Multi-select workers and admins can be assigned to specific projects.
 *   **Real-time Dashboard:** Project cards reflect live status updates, budget progress, and recent activity logs.
@@ -59,4 +59,4 @@ The system employs 'Defense in Depth' security:
 *   **Enhanced Client Data:** Expanded capture of company details, including Phone and Address.
 
 ## 6. Conclusion
-Wavelet CRM is a robust, scalable solution tailored for modern teams. By combining real-time data sync with rigorous audit logging and a user-centric design, it provides a premium experience for managing both client relationships and internal operations.
+CRM is a robust, scalable solution tailored for modern teams. By combining real-time data sync with rigorous audit logging and a user-centric design, it provides a premium experience for managing both client relationships and internal operations.

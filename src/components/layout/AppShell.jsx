@@ -45,7 +45,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       {/* Sidebar */}
       <aside className={`fixed top-0 left-0 h-full bg-slate-900 text-white w-64 transform ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 transition-transform duration-200 ease-in-out z-30 flex flex-col`}>
         <div className="p-6">
-          <h2 className="text-2xl font-bold tracking-tight text-blue-400">Wavelet CRM</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-blue-400">CRM</h2>
         </div>
 
         <nav className="flex-1 px-4 space-y-2">
@@ -109,7 +109,7 @@ const AppShell = ({ children }) => {
           >
             <Menu size={24} />
           </button>
-          <h1 className="text-xl font-bold text-slate-900">Wavelet CRM</h1>
+          <h1 className="text-xl font-bold text-slate-900">CRM</h1>
           <div className="w-10" /> {/* Spacer */}
         </header>
 

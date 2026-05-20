@@ -1,5 +1,5 @@
 # Leads Management Module — Developer Blueprint
-### Wavelet CRM · React 18 + Vite + Tailwind CSS + Lucide React + Firebase Firestore
+### CRM · React 18 + Vite + Tailwind CSS + Lucide React + Firebase Firestore
 
 > **Scope of this document:** This blueprint is the complete specification for the Leads Management module. It covers the Firestore schema, all component hierarchies, state management patterns, Firebase query strategies, phase-transition logic, the Negotiation financial engine, and the Final → Project conversion handshake. Implement every section in the order presented. Do not modify any existing collection (`users`, `projects`, `shifts`, `salary_transactions`).
 

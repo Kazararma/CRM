@@ -1,5 +1,5 @@
 # Salary Dashboard Module — Developer Blueprint
-### Wavelet CRM · React 18 + Vite + Tailwind CSS + Lucide React + Firebase Firestore
+### CRM · React 18 + Vite + Tailwind CSS + Lucide React + Firebase Firestore
 
 > **Scope of this document:** This blueprint covers exclusively the Salary Dashboard module. The Floating Shift Timer, Work Log submission, and base Financial Hooks are assumed complete and operational. This document defines everything that must be built on top of that infrastructure: Firestore schema additions, the salary computation engine, the Admin and Worker view hierarchies, and the full Payment Handshake transaction flow.
 

@@ -1,5 +1,5 @@
 # Opportunities Pipeline — Developer Blueprint
-### Wavelet CRM · Leads Module Refactor + New Opportunities Module
+### CRM · Leads Module Refactor + New Opportunities Module
 #### React 18 + Vite + Tailwind CSS + Lucide React + Firebase Firestore
 
 > **Document Authority:** This blueprint governs two parallel workstreams: (1) a non-destructive refactor of the existing Leads module, and (2) the net-new Opportunities module that sits between Leads and Projects in the CRM pipeline. Implement workstream 1 fully before starting workstream 2. All Firestore writes must be non-destructive — no existing document fields are deleted or renamed in place.

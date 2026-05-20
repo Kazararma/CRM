@@ -1,4 +1,4 @@
-# Wavelet CRM Application — Master Blueprint for AI Coding Agent
+# CRM Application — Master Blueprint for AI Coding Agent
 
 > **AGENT DIRECTIVE:** This document is your single source of truth. Read it in full before writing a single line of code. Complete each phase entirely and verify it before proceeding to the next. Do not skip steps. Do not infer undocumented behaviour — refer back to this document.
 

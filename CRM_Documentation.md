@@ -1,7 +1,7 @@
-# Wavelet CRM - Technical Documentation
+# CRM - Technical Documentation
 
 ## 1. Project Overview
-**Wavelet CRM** is a premium, real-time Project Management and Payroll platform designed for internal teams to track productivity, manage project lifecycles, and automate complex financial calculations. The system focuses on high-fidelity data visualization, instant responsiveness, and administrative transparency.
+**CRM** is a premium, real-time Project Management and Payroll platform designed for internal teams to track productivity, manage project lifecycles, and automate complex financial calculations. The system focuses on high-fidelity data visualization, instant responsiveness, and administrative transparency.
 
 ---
 
