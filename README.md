@@ -1,16 +1,55 @@
-# React + Vite
+# CRM 🌊
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> A real-time, enterprise-grade business management platform that seamlessly bridges client acquisition, project execution, and automated payroll.
 
-Currently, two official plugins are available:
+This CRM is a full-stack Single Page Application (SPA) designed to manage the entire lifecycle of a business. It transforms raw leads into actionable projects, tracks employee labor with high-fidelity timers, and calculates complex payroll structures in real-time.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## ✨ Core Features
 
-## React Compiler
+### 🎯 1. Acquisition Pipeline (Leads & Opportunities)
+* **10-Stage Opportunity Funnel:** A dynamic Kanban board tracking deals from *Prospecting* to *Closed Won*.
+* **Dynamic Financial Engine:** Auto-calculates margins, agreed budgets, and outstanding balances based on the deal's current phase.
+* **Atomic Handshakes:** Zero-data-loss conversions using Firestore batch writes to instantly upgrade a Lead to an Opportunity, and an Opportunity to an active Project.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 🛠️ 2. Project Execution
+* **Live Budget Tracking:** Real-time P&L tracking calculating overhead expenses, labor costs, and realized profit instantly.
+* **Role-Based Assignment:** Secure assignment of specific Workers and Admins to isolated project scopes.
+* **Audit Trails:** Automated logging for all phase changes and financial updates.
 
-## Expanding the ESLint configuration
+### ⏱️ 3. Labor & Shift Tracking
+* **Floating Shift Timer:** A persistent, 60fps global timer allowing workers to log hours against assigned projects without interrupting their workflow.
+* **The "Online Heartbeat":** An automated anti-idle system that requests worker confirmation to prevent "ghost hours".
+* **Work Hour Dashboard:** A visual calendar for workers to track pending and validated shifts.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 💰 4. Smart Salary Engine
+* **Tri-Factor Compensation:** Native support for Project-based (with overtime logic), Monthly (20-day eligibility check), and Hourly compensation structures.
+* **The Payment Handshake:** A secure, two-way confirmation loop (`Initiate Payment` -> `Pending` -> `Salary Received` / `Disputed`) between Admins and Workers.
+* **Localization:** Global Indian Rupee (₹) currency formatting.
+
+---
+
+## 💻 Tech Stack
+
+**Frontend:**
+* [React 18](https://react.dev/) (via Vite for lightning-fast HMR)
+* [Tailwind CSS](https://tailwindcss.com/) (Utility-first styling)
+* [Lucide React](https://lucide.dev/) (Scalable SVG iconography)
+
+**Backend & Database:**
+* [Firebase Firestore](https://firebase.google.com/docs/firestore) (Real-time NoSQL database via `onSnapshot`)
+* [Firebase Authentication](https://firebase.google.com/docs/auth) (Role-Based Access Control)
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+* Node.js (v18 or higher)
+* A Firebase account and project.
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/Kazarama/CRM.git](https://github.com/Kazarama/CRM.git)
+   cd CRM
