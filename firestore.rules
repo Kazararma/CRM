@@ -60,6 +60,16 @@ service cloud.firestore {
       }
     }
 
+    // INVOICES MANAGEMENT
+    match /invoices/{invoiceId} {
+      allow read, write: if isAdmin();
+    }
+
+    // SETTINGS MANAGEMENT
+    match /settings/{settingId} {
+      allow read, write: if isAdmin();
+    }
+
     // COLLECTION GROUPS
     match /{path=**}/shifts/{shiftId} {
       allow read: if isAuthenticated();

@@ -5,7 +5,8 @@ import StageSelector from "./StageSelector";
 import WorkLogSection from "./WorkLogSection";
 import MeetingLogSection from "./MeetingLogSection";
 import Avatar from "../shared/Avatar";
-import { ChevronDown, ChevronUp, Clock, Info, AlertCircle, Trash2 } from "lucide-react";
+import InvoiceFormModal from "../invoices/InvoiceFormModal";
+import { ChevronDown, ChevronUp, Clock, Info, AlertCircle, Trash2, Receipt } from "lucide-react";
 import { useShift } from "../../contexts/ShiftContext";
 import LoadingSpinner from "../shared/LoadingSpinner";
 import { useAuth } from "../../hooks/useAuth";
@@ -28,6 +29,7 @@ const ProjectDashboardCard = ({ project }) => {
   const { liveProject, baseExpenses, totalLaborCost, grandTotal, loading: financialsLoading } = useProjectFinancials(project?.id);
   const [pendingShifts, setPendingShifts] = useState([]);
   const [isValidating, setIsValidating] = useState(false);
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
   const { users } = useUsers();
 
   // Use liveProject data for reactive P&L math
@@ -285,11 +287,17 @@ const ProjectDashboardCard = ({ project }) => {
                   );
                 })()}
 
-
-
-
-
-
+                {isAdmin && (
+                  <div className="mt-4">
+                    <button
+                      onClick={() => setIsInvoiceModalOpen(true)}
+                      className="w-full flex items-center justify-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-3 rounded-xl font-bold border border-indigo-200 transition-colors"
+                    >
+                      <Receipt size={18} />
+                      Generate Invoice
+                    </button>
+                  </div>
+                )}
                 
                 <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
                   <h4 className="text-[10px] font-black text-blue-600 uppercase mb-2 flex items-center gap-1">
@@ -314,6 +322,28 @@ const ProjectDashboardCard = ({ project }) => {
             </div>
           )}
         </div>
+      )}
+
+      {isInvoiceModalOpen && (
+        <InvoiceFormModal
+          isOpen={isInvoiceModalOpen}
+          onClose={() => setIsInvoiceModalOpen(false)}
+          initialData={{
+            projectId: displayProject.id,
+            projectTitle: displayProject.title,
+            client: {
+              name: displayProject.clientName || '',
+              phoneNumber: displayProject.clientPhone || '',
+            },
+            items: [
+              {
+                description: `Project: ${displayProject.title}`,
+                unitPrice: Number(displayProject.totalBilling || displayProject.projectValue || 0),
+                qty: 1
+              }
+            ]
+          }}
+        />
       )}
     </div>
   );

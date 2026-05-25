@@ -1,8 +1,8 @@
-# CRM 🌊
+# WAVELET CRM 🌊
 
-> A real-time, enterprise-grade business management platform that seamlessly bridges client acquisition, project execution, and automated payroll.
+> A real-time, enterprise-grade business management platform that seamlessly bridges client acquisition, project execution, automated payroll, and financial invoicing.
 
-This CRM is a full-stack Single Page Application (SPA) designed to manage the entire lifecycle of a business. It transforms raw leads into actionable projects, tracks employee labor with high-fidelity timers, and calculates complex payroll structures in real-time.
+Wavelet CRM is a full-stack Single Page Application (SPA) designed to manage the entire lifecycle of a business. It transforms raw leads into actionable projects, tracks employee labor with high-fidelity timers, calculates complex payroll structures in real-time, and generates professional PDF invoices on the fly.
 
 ## ✨ Core Features
 
@@ -26,6 +26,12 @@ This CRM is a full-stack Single Page Application (SPA) designed to manage the en
 * **The Payment Handshake:** A secure, two-way confirmation loop (`Initiate Payment` -> `Pending` -> `Salary Received` / `Disputed`) between Admins and Workers.
 * **Localization:** Global Indian Rupee (₹) currency formatting.
 
+### 📄 5. Automated PDF Invoicing Engine
+* **Dynamic PDF Generation:** Instant client-ready PDF invoice rendering natively in the browser using `@react-pdf/renderer`.
+* **Global Configuration:** Centralized control over company identity, banking details, and default signature blocks, dynamically synced to all new invoices.
+* **Project Integration:** Seamless one-click invoice generation directly from the Project Management dashboard, auto-filling client details and outstanding balances.
+* **Responsive UI:** Fully mobile-optimized interface with scalable layout grids and custom scrollbars.
+
 ---
 
 ## 💻 Tech Stack
@@ -34,6 +40,8 @@ This CRM is a full-stack Single Page Application (SPA) designed to manage the en
 * [React 18](https://react.dev/) (via Vite for lightning-fast HMR)
 * [Tailwind CSS](https://tailwindcss.com/) (Utility-first styling)
 * [Lucide React](https://lucide.dev/) (Scalable SVG iconography)
+* [React PDF](https://react-pdf.org/) (Client-side dynamic PDF generation)
+* [React Hook Form](https://react-hook-form.com/) (Performant, flexible form validation)
 
 **Backend & Database:**
 * [Firebase Firestore](https://firebase.google.com/docs/firestore) (Real-time NoSQL database via `onSnapshot`)

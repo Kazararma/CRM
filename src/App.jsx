@@ -15,6 +15,7 @@ import PeoplePage from "./pages/PeoplePage";
 import SalaryPage from "./pages/Salary/SalaryPage";
 import LeadsPage from "./pages/Leads/LeadsPage";
 import OpportunitiesPage from "./pages/Opportunities/OpportunitiesPage";
+import InvoicesPage from "./pages/Invoices/InvoicesPage";
 import ComingSoon from "./components/shared/ComingSoon";
 import WorkHourSection from "./components/workhours/WorkHourSection";
 import FloatingShiftTimer from "./components/global/FloatingShiftTimer";
@@ -44,6 +45,14 @@ const App = () => {
                       <Route path="salary" element={<SalaryPage />} />
                       
                       {/* Admin Only Routes */}
+                      <Route 
+                        path="invoices" 
+                        element={
+                          <RoleGuard allowedRoles={["admin", "super_admin"]}>
+                            <InvoicesPage />
+                          </RoleGuard>
+                        } 
+                      />
                       <Route 
                         path="leads" 
                         element={

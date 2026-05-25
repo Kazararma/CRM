@@ -9,6 +9,7 @@ import {
   CreditCard,
   Target,
   TrendingUp,
+  Receipt,
   LogOut, 
   Menu, 
   X 
@@ -27,6 +28,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { name: "Leads",         path: "/leads",         icon: Target,          visible: isAdmin },
     { name: "Opportunities", path: "/opportunities", icon: TrendingUp,       visible: isAdmin },
     { name: "Projects",      path: "/projects",      icon: FolderKanban,    visible: isAdmin },
+    { name: "Invoices",      path: "/invoices",      icon: Receipt,         visible: isAdmin },
     { name: "People",        path: "/people",        icon: Users,           visible: isAdmin },
     { name: "Work Hours",    path: "/work-hours",    icon: Clock,           visible: true },
     { name: "Salary",        path: "/salary",        icon: CreditCard,      visible: true },
@@ -44,11 +46,18 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
       {/* Sidebar */}
       <aside className={`fixed top-0 left-0 h-full bg-slate-900 text-white w-64 transform ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 transition-transform duration-200 ease-in-out z-30 flex flex-col`}>
-        <div className="p-6">
-          <h2 className="text-2xl font-bold tracking-tight text-blue-400">CRM</h2>
+        <div className="p-6 flex flex-col items-center justify-center gap-3 mb-2">
+          <img 
+            src="/wavelet-logo.png" 
+            alt="Wavelet Logo" 
+            className="w-24 h-24 object-contain" 
+          />
+          <span className="text-xl font-black tracking-tight text-white text-center">
+            WAVELET CRM
+          </span>
         </div>
 
-        <nav className="flex-1 px-4 space-y-2">
+        <nav className="flex-1 px-4 space-y-2 overflow-y-auto pb-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full">
           {navItems.filter(item => item.visible).map((item) => (
             <Link
               key={item.name}
@@ -109,7 +118,10 @@ const AppShell = ({ children }) => {
           >
             <Menu size={24} />
           </button>
-          <h1 className="text-xl font-bold text-slate-900">CRM</h1>
+          <div className="flex items-center gap-3">
+            <img src="/wavelet-logo.png" alt="Wavelet Logo" className="w-10 h-10 object-contain drop-shadow-sm" />
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight">WAVELET CRM</h1>
+          </div>
           <div className="w-10" /> {/* Spacer */}
         </header>
 
