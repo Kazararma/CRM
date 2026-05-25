@@ -34,26 +34,38 @@ export const InvoicePDFTemplate = ({ invoice }) => {
           {/* Company Info */}
           <View style={styles.billingColumn}>
             <Text style={styles.sectionLabel}>COMPANY INFO</Text>
-            {invoice.company?.name && <Text style={styles.bodyText}>{invoice.company?.name}</Text>}
-            {invoice.company?.addressLine1 && <Text style={styles.bodyText}>{invoice.company?.addressLine1}</Text>}
-            {invoice.company?.addressLine2 && <Text style={styles.bodyText}>{invoice.company?.addressLine2}</Text>}
+            {invoice.company?.name ? <Text style={styles.bodyText}>{invoice.company?.name}</Text> : null}
+            {invoice.company?.addressLine1 ? <Text style={styles.bodyText}>{invoice.company?.addressLine1}</Text> : null}
+            {invoice.company?.addressLine2 ? <Text style={styles.bodyText}>{invoice.company?.addressLine2}</Text> : null}
             
-            {(invoice.company?.city || invoice.company?.pincode) && (
+            {(invoice.company?.city || invoice.company?.pincode) ? (
               <Text style={styles.bodyText}>
                 {[invoice.company?.city, invoice.company?.pincode].filter(Boolean).join(', ')}
               </Text>
-            )}
+            ) : null}
             
-            {invoice.company?.phoneNumbers && <Text style={styles.bodyText}>Phone: {invoice.company?.phoneNumbers}</Text>}
-            {invoice.company?.website && <Text style={styles.bodyText}>Web: {invoice.company?.website}</Text>}
-            {invoice.company?.gstNumber && <Text style={styles.bodyText}>GST No.: {invoice.company?.gstNumber}</Text>}
+            {invoice.company?.phoneNumbers ? <Text style={styles.bodyText}>Phone: {invoice.company?.phoneNumbers}</Text> : null}
+            {invoice.company?.website ? <Text style={styles.bodyText}>Web: {invoice.company?.website}</Text> : null}
+            {invoice.company?.gstNumber ? <Text style={styles.bodyText}>GST No.: {invoice.company?.gstNumber}</Text> : null}
           </View>
           
           {/* Bill To */}
           <View style={styles.billingColumn}>
             <Text style={styles.sectionLabel}>BILL TO</Text>
-            <Text style={styles.bodyText}>{invoice.client?.name}</Text>
-            {invoice.client?.phoneNumber && <Text style={styles.bodyText}>{invoice.client.phoneNumber}</Text>}
+            
+            {invoice.clientBusinessName ? (
+              <View>
+                <Text style={[styles.bodyText, { fontFamily: 'Helvetica-Bold' }]}>{invoice.clientBusinessName}</Text>
+                {invoice.client?.name ? <Text style={styles.bodyText}>Attn: {invoice.client?.name}</Text> : null}
+              </View>
+            ) : (
+              invoice.client?.name ? <Text style={[styles.bodyText, { fontFamily: 'Helvetica-Bold' }]}>{invoice.client?.name}</Text> : null
+            )}
+
+            {invoice.clientBusinessAddress ? <Text style={styles.bodyText}>{invoice.clientBusinessAddress}</Text> : null}
+            {invoice.clientTaxId ? <Text style={styles.bodyText}>GST: {invoice.clientTaxId}</Text> : null}
+            {invoice.client?.phoneNumber ? <Text style={styles.bodyText}>{invoice.client.phoneNumber}</Text> : null}
+            {invoice.clientEmail ? <Text style={styles.bodyText}>{invoice.clientEmail}</Text> : null}
           </View>
         </View>
 
@@ -106,11 +118,11 @@ export const InvoicePDFTemplate = ({ invoice }) => {
             </View>
             <View>
               <Text style={styles.sectionLabel}>PAYMENT METHOD</Text>
-              {invoice.payment?.bankName && <Text style={styles.bodyText}>Bank: {invoice.payment.bankName}</Text>}
-              {invoice.payment?.accountName && <Text style={styles.bodyText}>Acc Name: {invoice.payment.accountName}</Text>}
-              {invoice.payment?.accountNumber && <Text style={styles.bodyText}>Account No.: {invoice.payment.accountNumber}</Text>}
-              {invoice.payment?.ifscCode && <Text style={styles.bodyText}>IFSC: {invoice.payment.ifscCode}</Text>}
-              {invoice.payment?.upiNumber && <Text style={styles.bodyText}>UPI: {invoice.payment.upiNumber}</Text>}
+              {invoice.payment?.bankName ? <Text style={styles.bodyText}>Bank: {invoice.payment.bankName}</Text> : null}
+              {invoice.payment?.accountName ? <Text style={styles.bodyText}>Acc Name: {invoice.payment.accountName}</Text> : null}
+              {invoice.payment?.accountNumber ? <Text style={styles.bodyText}>Account No.: {invoice.payment.accountNumber}</Text> : null}
+              {invoice.payment?.ifscCode ? <Text style={styles.bodyText}>IFSC: {invoice.payment.ifscCode}</Text> : null}
+              {invoice.payment?.upiNumber ? <Text style={styles.bodyText}>UPI: {invoice.payment.upiNumber}</Text> : null}
             </View>
           </View>
 
@@ -124,10 +136,10 @@ export const InvoicePDFTemplate = ({ invoice }) => {
                 ) : invoice.preparedBy.text ? (
                   <Text style={[styles.bodyText, { marginTop: 5 }]}>{invoice.preparedBy.text}</Text>
                 ) : (
-                  <>
+                  <View>
                     <Text style={[styles.bodyText, { marginTop: 5 }]}>{invoice.preparedBy.name}</Text>
                     <Text style={styles.bodyText}>{invoice.preparedBy.designation}</Text>
-                  </>
+                  </View>
                 )}
               </View>
             )}

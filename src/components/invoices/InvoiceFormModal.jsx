@@ -31,6 +31,10 @@ export default function InvoiceFormModal({ isOpen, onClose, initialData = null }
       ...initialData,
       invoiceDate: formatForDateInput(initialData?.invoiceDate),
       client: initialData?.client || { name: '', phoneNumber: '' },
+      clientBusinessName: initialData?.clientBusinessName || '',
+      clientTaxId: initialData?.clientTaxId || '',
+      clientEmail: initialData?.clientEmail || '',
+      clientBusinessAddress: initialData?.clientBusinessAddress || '',
       items: initialData?.items?.length ? initialData.items : [{ description: '', unitPrice: 0, qty: 1 }],
       notesTerms: initialData?.notesTerms || 'Payment is due within 15 days.',
       projectId: initialData?.projectId || null,
@@ -75,7 +79,13 @@ export default function InvoiceFormModal({ isOpen, onClose, initialData = null }
         company: globalSettings?.company || {},
         payment: globalSettings?.payment || {},
         preparedBy: globalSettings?.preparedBy || {},
+        clientBusinessName: data.clientBusinessName || '',
+        clientBusinessAddress: data.clientBusinessAddress || '',
+        clientTaxId: data.clientTaxId || '',
+        clientEmail: data.clientEmail || '',
       };
+
+      console.log("PAYLOAD GOING TO DATABASE:", payload);
 
       if (payload.invoiceNumber) {
         payload.invoiceNumber = Number(payload.invoiceNumber);
@@ -150,6 +160,46 @@ export default function InvoiceFormModal({ isOpen, onClose, initialData = null }
                     {...register('client.phoneNumber')}
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
                     placeholder="+91 XXXXX XXXXX"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">Email <span className="text-slate-400 font-normal">(Optional)</span></label>
+                  <input
+                    type="email"
+                    {...register('clientEmail')}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+                    placeholder="client@example.com"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">Business Name <span className="text-slate-400 font-normal">(Optional)</span></label>
+                  <input
+                    type="text"
+                    {...register('clientBusinessName')}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+                    placeholder="e.g. Acme Corp"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">Tax ID / GST No. <span className="text-slate-400 font-normal">(Optional)</span></label>
+                  <input
+                    type="text"
+                    {...register('clientTaxId')}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+                    placeholder="Tax ID"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">Business Address <span className="text-slate-400 font-normal">(Optional)</span></label>
+                  <textarea
+                    {...register('clientBusinessAddress')}
+                    rows={2}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors text-sm"
+                    placeholder="Full business address"
                   />
                 </div>
               </div>
