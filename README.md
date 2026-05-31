@@ -83,4 +83,4 @@ CRM is a full-stack Single Page Application (SPA) designed to manage the entire 
    ```bash
    npm run dev
    ```
-   Working link-https://waveletcrm.netlify.app/
+   
