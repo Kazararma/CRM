@@ -50,13 +50,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       {/* Sidebar */}
       <aside className={`fixed top-0 left-0 h-full bg-black text-white w-64 transform ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 transition-transform duration-200 ease-in-out z-30 flex flex-col`}>
         <div className="pt-8 pb-4 flex flex-col items-center justify-center relative">
-          <img 
-            src="/wavelet-logo.png" 
-            alt="Wavelet Logo" 
-            className="w-48 h-48 object-contain drop-shadow-xl" 
-          />
-          <span className="text-2xl font-black tracking-tight text-white text-center -mt-6">
-            WAVELET CRM
+          <span className="text-3xl font-black tracking-tight text-white text-center">
+            CRM
           </span>
         </div>
 
@@ -122,8 +117,7 @@ const AppShell = ({ children }) => {
             <Menu size={24} />
           </button>
           <div className="flex items-center gap-3">
-            <img src="/wavelet-logo.png" alt="Wavelet Logo" className="w-10 h-10 object-contain drop-shadow-sm" />
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">WAVELET CRM</h1>
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight">CRM</h1>
           </div>
           <div className="w-10" /> {/* Spacer */}
         </header>

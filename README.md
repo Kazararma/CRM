@@ -1,8 +1,8 @@
-# WAVELET CRM 🌊
+# CRM 🌊
 
 > A real-time, enterprise-grade business management platform that seamlessly bridges client acquisition, project execution, automated payroll, and financial invoicing.
 
-Wavelet CRM is a full-stack Single Page Application (SPA) designed to manage the entire lifecycle of a business. It transforms raw leads into actionable projects, tracks employee labor with high-fidelity timers, calculates complex payroll structures in real-time, and generates professional PDF invoices on the fly.
+CRM is a full-stack Single Page Application (SPA) designed to manage the entire lifecycle of a business. It transforms raw leads into actionable projects, tracks employee labor with high-fidelity timers, calculates complex payroll structures in real-time, and generates professional PDF invoices on the fly.
 
 ## ✨ Core Features
 
@@ -59,5 +59,27 @@ Wavelet CRM is a full-stack Single Page Application (SPA) designed to manage the
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/Kazarama/CRM.git](https://github.com/Kazarama/CRM.git)
+   git clone https://github.com/Kazarama/CRM.git
    cd CRM
+   ```
+
+2. **Set up Environment Variables:**
+   Create a `.env` file in the root of the project. **Note: The `.env` file is ignored by Git and will not be uploaded or committed** to protect sensitive information. Populate it with your Firebase configuration:
+   ```env
+   VITE_FIREBASE_API_KEY="your_api_key"
+   VITE_FIREBASE_AUTH_DOMAIN="your_auth_domain"
+   VITE_FIREBASE_PROJECT_ID="your_project_id"
+   VITE_FIREBASE_STORAGE_BUCKET="your_storage_bucket"
+   VITE_FIREBASE_MESSAGING_SENDER_ID="your_sender_id"
+   VITE_FIREBASE_APP_ID="your_app_id"
+   ```
+
+3. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+4. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
