@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
-import { X, Clock, FileText, CheckCircle2, AlertCircle } from "lucide-react";
+import { X, Clock, FileText, CheckCircle2, AlertCircle, Image as ImageIcon } from "lucide-react";
 import { useShifts } from "../../hooks/useShifts";
 import { useShift } from "../../contexts/ShiftContext";
 import { useDailyLogs } from "../../hooks/useDailyLogs";
@@ -127,6 +127,21 @@ const WorkerCalendarModal = ({ isOpen, onClose, worker }) => {
                                 : `${Math.floor((shift.durationMinutes || 0) / 60)}h ${(shift.durationMinutes || 0) % 60}m`
                               }
                             </p>
+                            
+                            {(shift.totalBreakMinutes > 0 || shift.totalExceededBreakMinutes > 0) && (
+                              <div className="mt-1 flex flex-col gap-0.5">
+                                {shift.totalBreakMinutes > 0 && (
+                                  <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+                                    Break Taken: {shift.totalBreakMinutes} mins
+                                  </span>
+                                )}
+                                {shift.totalExceededBreakMinutes > 0 && (
+                                  <span className="text-[10px] text-red-600 font-black uppercase tracking-wider animate-pulse">
+                                    Break Exceeded: {shift.totalExceededBreakMinutes} mins
+                                  </span>
+                                )}
+                              </div>
+                            )}
                             <div className="mt-4 flex items-center justify-between">
                               <div className="flex items-center gap-1.5 text-xs">
                                 {shift.isValidated === true ? (
@@ -199,6 +214,27 @@ const WorkerCalendarModal = ({ isOpen, onClose, worker }) => {
                               </span>
                             </div>
                             <p className="text-sm text-gray-700">{log.description || log.content}</p>
+                            {log.attachmentUrl && (
+                              <div className="mt-2 flex items-center gap-2">
+                                {log.attachmentType === 'pdf' ? (
+                                  <FileText size={14} className="text-red-500 flex-shrink-0" />
+                                ) : (
+                                  <ImageIcon size={14} className="text-blue-500 flex-shrink-0" />
+                                )}
+                                <a
+                                  href={log.attachmentUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs text-blue-600 hover:underline truncate max-w-[200px]"
+                                  title={log.attachmentFileName ?? 'View Attachment'}
+                                >
+                                  {log.attachmentFileName ?? 'View Proof'}
+                                </a>
+                                <span className="text-xs text-gray-400 uppercase">
+                                  {log.attachmentType}
+                                </span>
+                              </div>
+                            )}
                           </div>
                         )) : (
                           <p className="text-sm text-gray-400 italic">No work logs submitted.</p>

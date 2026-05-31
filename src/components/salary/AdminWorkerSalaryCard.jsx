@@ -52,25 +52,29 @@ const AdminWorkerSalaryCard = ({ worker, activeTransaction, onPay, onConfigure, 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col h-full hover:shadow-md transition-shadow">
       {/* Header */}
-      <div className="p-5 border-b border-gray-50 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Avatar src={worker.photoURL} name={worker.displayName} size="md" />
-          <div className="min-w-0">
-            <h3 className="font-bold text-gray-900 truncate">{worker.displayName}</h3>
-            <div className="flex items-center gap-2 mt-0.5">
+      <div className="p-5 border-b border-gray-50 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className="flex-shrink-0">
+            <Avatar src={worker.photoURL} name={worker.displayName} size="md" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-bold text-gray-900 truncate pr-2">{worker.displayName}</h3>
+            <div className="flex flex-wrap items-center gap-1.5 mt-1">
               <Badge type={worker.role}>{worker.role}</Badge>
               {worker.jobTitle && (
-                <span className="bg-blue-50 text-blue-600 text-[10px] font-black px-1.5 py-0.5 rounded border border-blue-100 uppercase tracking-tight">
+                <span className="bg-blue-50 text-blue-600 text-[9px] font-black px-1.5 py-0.5 rounded border border-blue-100 uppercase tracking-tight truncate max-w-full">
                   {worker.jobTitle}
                 </span>
               )}
-              {isConfigured && <SalaryTypeBadge type={salary.type} />}
+              {isConfigured && (
+                <SalaryTypeBadge type={salary.type} />
+              )}
             </div>
           </div>
         </div>
         <button 
           onClick={() => onConfigure(worker)}
-          className="p-2 text-gray-400 hover:bg-gray-100 hover:text-blue-600 rounded-xl transition-all"
+          className="p-2 text-gray-400 hover:bg-gray-100 hover:text-blue-600 rounded-xl transition-all flex-shrink-0"
           title="Configure Salary"
         >
           <Settings size={18} />

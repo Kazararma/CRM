@@ -22,7 +22,9 @@ const SalaryConfigModal = ({ isOpen, onClose, worker }) => {
       monthly: {
         fixedMonthlySalary: 0,
         requiredWorkDays: 20,
-        requiredHoursPerDay: 7
+        requiredHoursPerDay: 7,
+        allowedBreakMinutes: 30,
+        allowedBreakCount: 1
       },
       hourly: {
         ratePerHour: 0
@@ -38,7 +40,7 @@ const SalaryConfigModal = ({ isOpen, onClose, worker }) => {
       reset({
         type: s.type || 'hourly',
         project: s.project || { baseRatePerHour: 0, standardHoursThreshold: 160, overtimeRatePerHour: 0 },
-        monthly: s.monthly || { fixedMonthlySalary: 0, requiredWorkDays: 20, requiredHoursPerDay: 7 },
+        monthly: s.monthly || { fixedMonthlySalary: 0, requiredWorkDays: 20, requiredHoursPerDay: 7, allowedBreakMinutes: 30, allowedBreakCount: 1 },
         hourly: s.hourly || { ratePerHour: 0 }
       });
     }
@@ -61,7 +63,9 @@ const SalaryConfigModal = ({ isOpen, onClose, worker }) => {
         monthly: data.type === 'monthly' ? {
           fixedMonthlySalary: Number(data.monthly.fixedMonthlySalary),
           requiredWorkDays: Number(data.monthly.requiredWorkDays),
-          requiredHoursPerDay: Number(data.monthly.requiredHoursPerDay)
+          requiredHoursPerDay: Number(data.monthly.requiredHoursPerDay),
+          allowedBreakMinutes: Number(data.monthly.allowedBreakMinutes),
+          allowedBreakCount: Number(data.monthly.allowedBreakCount)
         } : null,
         hourly: data.type === 'hourly' ? {
           ratePerHour: Number(data.hourly.ratePerHour)
@@ -207,6 +211,27 @@ const SalaryConfigModal = ({ isOpen, onClose, worker }) => {
                             step="0.5"
                             min="0"
                             {...register('monthly.requiredHoursPerDay', { min: 0 })}
+                            className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 font-bold text-gray-900"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Allowed Break Time (Mins)</label>
+                          <input 
+                            type="number"
+                            min="0"
+                            {...register('monthly.allowedBreakMinutes', { min: 0 })}
+                            className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 font-bold text-gray-900"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Max Breaks per Day</label>
+                          <input 
+                            type="number"
+                            min="1"
+                            max="10"
+                            {...register('monthly.allowedBreakCount', { min: 1, max: 10 })}
                             className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 font-bold text-gray-900"
                           />
                         </div>

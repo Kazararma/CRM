@@ -4,6 +4,14 @@
       "collectionGroup": "shifts",
       "queryScope": "COLLECTION_GROUP",
       "fields": [
+        { "fieldPath": "isValidated", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "shifts",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
         { "fieldPath": "projectId", "order": "ASCENDING" },
         { "fieldPath": "isValidated", "order": "ASCENDING" },
         { "fieldPath": "status", "order": "ASCENDING" }

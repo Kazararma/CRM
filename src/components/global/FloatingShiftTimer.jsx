@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef, memo } from "react";
 import { useShift } from "../../contexts/ShiftContext";
-import { Play, Square, GripVertical, Clock, Briefcase, AlertTriangle } from "lucide-react";
+import { useAuth } from "../../hooks/useAuth";
+import { Play, Square, GripVertical, Clock, Briefcase, AlertTriangle, Coffee, StopCircle } from "lucide-react";
 import EndShiftModal from "./EndShiftModal";
 import { LOCAL_STORAGE_TIMER_POS_KEY } from "../../config/shiftConfig";
 import { useProjects } from "../../hooks/useProjects";
 
 // Separate Timer Display to prevent the entire container from re-rendering every second
-const TimerDisplay = memo(({ isActive, heartbeatRequired }) => {
-  const { elapsedSeconds } = useShift();
+const TimerDisplay = memo(({ isActive, heartbeatRequired, isOnBreak, currentBreakSeconds, breakExceeded }) => {
+  const { billableElapsedSeconds } = useShift();
   
   const formatElapsed = (seconds) => {
     const hrs = Math.floor(seconds / 3600);
@@ -17,22 +18,38 @@ const TimerDisplay = memo(({ isActive, heartbeatRequired }) => {
   };
 
   return (
-    <div className="flex items-center gap-2 mt-1">
-      <Clock size={16} className={isActive || heartbeatRequired ? "text-white" : "text-blue-500"} />
-      <span className="font-mono font-bold text-lg leading-none">
-        {isActive ? formatElapsed(elapsedSeconds) : "00:00:00"}
-      </span>
+    <div className="flex flex-col">
+      <div className="flex items-center gap-2 mt-1">
+        <Clock size={16} className={breakExceeded ? "text-red-600" : (isActive || heartbeatRequired ? "text-white" : "text-blue-500")} />
+        <span className="font-mono font-bold text-lg leading-none">
+          {isActive ? formatElapsed(billableElapsedSeconds || 0) : "00:00:00"}
+        </span>
+      </div>
+      {isActive && isOnBreak && (
+        <span className={`text-[10px] font-black mt-1 uppercase tracking-wider ${breakExceeded ? 'text-red-600 animate-pulse' : 'text-amber-200'}`}>
+          On Break: {formatElapsed(currentBreakSeconds || 0)}
+        </span>
+      )}
     </div>
   );
 });
 
 const FloatingShiftTimer = () => {
-  const { shiftState, startShift, heartbeatRequired } = useShift();
+  const { shiftState, startShift, heartbeatRequired, isOnBreak, currentBreakSeconds, breakExceeded, startBreak, stopBreak, maxBreaksAllowed, breaksTakenCount } = useShift();
+  const { userProfile } = useAuth();
+  
+  const isMonthlyWorker = 
+    userProfile?.salaryType?.toLowerCase() === 'monthly' || 
+    userProfile?.salary?.type?.toLowerCase() === 'monthly' || 
+    !!userProfile?.salary?.monthly;
+
   const { projects } = useProjects();
   const [selectedProjectId, setSelectedProjectId] = useState("");
   const [isEndModalOpen, setIsEndModalOpen] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  const limitReached = breaksTakenCount >= maxBreaksAllowed;
 
   const containerRef = useRef(null);
   const posRef = useRef({ x: 20, y: 20 });
@@ -113,6 +130,7 @@ const FloatingShiftTimer = () => {
 
   // Handle z-index and styles based on state
   const getThemeClasses = () => {
+    if (breakExceeded) return "!ring-4 !ring-red-500 !bg-red-100 animate-pulse transition-all duration-300 !border-red-500 !text-red-900 shadow-red-500/50";
     if (heartbeatRequired) return "bg-amber-500 border-amber-400 animate-pulse text-white shadow-amber-500/20";
     if (isActive) return "bg-blue-600 border-blue-500 text-white shadow-blue-500/20";
     return "bg-white border-gray-200 text-gray-700 shadow-xl";
@@ -133,25 +151,54 @@ const FloatingShiftTimer = () => {
               onMouseDown={handleMouseDown}
               className="cursor-grab active:cursor-grabbing p-1.5 hover:bg-black/10 rounded-lg transition-colors flex-shrink-0"
             >
-              <GripVertical size={20} className={isActive || heartbeatRequired ? "text-white/50" : "text-gray-300"} />
+              <GripVertical size={20} className={breakExceeded ? "text-red-400" : (isActive || heartbeatRequired ? "text-white/50" : "text-gray-300")} />
             </div>
           )}
 
           <div className="flex flex-col pr-1 sm:pr-2 flex-1 min-w-0">
-            <span className={`text-[9px] sm:text-[10px] font-black uppercase tracking-wider leading-none ${isActive || heartbeatRequired ? "text-white/60" : "text-gray-400"}`}>
-              {isActive ? "Shift Active" : "Shift Offline"}
+            <span className={`text-[9px] sm:text-[10px] font-black uppercase tracking-wider leading-none ${breakExceeded ? "text-red-700" : (isActive || heartbeatRequired ? "text-white/60" : "text-gray-400")}`}>
+              {isActive ? (isOnBreak ? (breakExceeded ? "BREAK EXCEEDED" : "ON BREAK") : "Shift Active") : "Shift Offline"}
             </span>
-            <TimerDisplay isActive={isActive} heartbeatRequired={heartbeatRequired} />
+            <TimerDisplay isActive={isActive} heartbeatRequired={heartbeatRequired} isOnBreak={isOnBreak} currentBreakSeconds={currentBreakSeconds} breakExceeded={breakExceeded} />
           </div>
 
           {isActive ? (
-            <button
-              onClick={() => setIsEndModalOpen(true)}
-              className="p-2.5 sm:p-3 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-lg transition-all active:scale-95 flex items-center gap-2 flex-shrink-0"
-            >
-              <Square size={18} sm:size={20} fill="white" />
-              <span className="font-bold text-[10px] sm:text-xs">Stop Shift</span>
-            </button>
+            <div className="flex items-center gap-2">
+              {isMonthlyWorker && (
+                <button
+                  onClick={isOnBreak ? stopBreak : startBreak}
+                  disabled={!isOnBreak && limitReached}
+                  className={`p-2.5 sm:p-3 rounded-xl shadow-lg transition-all active:scale-95 flex items-center gap-1.5 flex-shrink-0 ${
+                    !isOnBreak && limitReached 
+                      ? '!bg-gray-300 !text-gray-500 !cursor-not-allowed !shadow-none'
+                      : isOnBreak 
+                        ? 'bg-amber-500 hover:bg-amber-600 text-white' 
+                        : 'bg-teal-500 hover:bg-teal-600 text-white'
+                  }`}
+                >
+                  {!isOnBreak && limitReached ? (
+                    <>
+                      <span className="text-sm">🚫</span>
+                      <span className="font-bold text-[10px] sm:text-xs hidden sm:inline">Max Breaks Reached</span>
+                    </>
+                  ) : (
+                    <>
+                      {isOnBreak ? <StopCircle size={18} /> : <Coffee size={18} />}
+                      <span className="font-bold text-[10px] sm:text-xs hidden sm:inline">
+                        {isOnBreak ? "Stop Break" : "Take Break"}
+                      </span>
+                    </>
+                  )}
+                </button>
+              )}
+              <button
+                onClick={() => setIsEndModalOpen(true)}
+                className="p-2.5 sm:p-3 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-lg transition-all active:scale-95 flex items-center gap-2 flex-shrink-0"
+              >
+                <Square size={18} sm:size={20} fill="white" />
+                <span className="font-bold text-[10px] sm:text-xs">Stop Shift</span>
+              </button>
+            </div>
           ) : (
             <div className="flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-none">
               <div className="relative flex-1 sm:w-32 lg:w-48">

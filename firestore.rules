@@ -72,7 +72,7 @@ service cloud.firestore {
 
     // COLLECTION GROUPS
     match /{path=**}/shifts/{shiftId} {
-      allow read: if isAuthenticated();
+      allow read: if isAdmin() || (isAuthenticated() && request.auth.uid == resource.data.userId);
       allow write: if isAdmin() || (isAuthenticated() && (
         request.auth.uid == resource.data.userId || 
         request.auth.uid == resource.data.authorUid

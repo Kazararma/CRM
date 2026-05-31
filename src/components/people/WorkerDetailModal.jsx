@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { Link } from "react-router-dom";
-import { X, ShieldCheck, ShieldAlert, History, Video, ExternalLink } from "lucide-react";
+import { X, ShieldCheck, ShieldAlert, History, Video, ExternalLink, FileText, Image as ImageIcon } from "lucide-react";
 import Avatar from "../shared/Avatar";
 import Badge from "../shared/Badge";
 import { getWorkLogsByUser, getMeetingLogsByUser, updateUserRole, updateWorkerSalarySettings, updateMonthlyPaymentStatus, updateUserProfile } from "../../firebase/userService";
@@ -284,6 +284,27 @@ const WorkerDetailModal = ({ isOpen, onClose, worker, onUpdate }) => {
                                     <div key={log.id} className="border-l-2 border-blue-500 pl-4 py-1">
                                       <p className="text-sm font-bold text-gray-900">{log.heading}</p>
                                       <p className="text-xs text-gray-500 whitespace-pre-wrap">{log.description}</p>
+                                      {log.attachmentUrl && (
+                                        <div className="mt-2 flex items-center gap-2">
+                                          {log.attachmentType === 'pdf' ? (
+                                            <FileText size={14} className="text-red-500 flex-shrink-0" />
+                                          ) : (
+                                            <ImageIcon size={14} className="text-blue-500 flex-shrink-0" />
+                                          )}
+                                          <a
+                                            href={log.attachmentUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-xs text-blue-600 hover:underline truncate max-w-[200px]"
+                                            title={log.attachmentFileName ?? 'View Attachment'}
+                                          >
+                                            {log.attachmentFileName ?? 'View Proof'}
+                                          </a>
+                                          <span className="text-xs text-gray-400 uppercase">
+                                            {log.attachmentType}
+                                          </span>
+                                        </div>
+                                      )}
                                       <p className="text-[10px] text-gray-400 mt-1">{log.createdAt ? format(log.createdAt.toDate(), "MMM d, yyyy · HH:mm") : "Just now"}</p>
                                     </div>
                                   ))}

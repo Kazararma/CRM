@@ -5,7 +5,9 @@ import {
   updateDoc, 
   doc, 
   serverTimestamp, 
-  getDoc 
+  getDoc,
+  Timestamp,
+  arrayUnion
 } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { useAuth } from "../context/AuthContext";
@@ -20,13 +22,52 @@ import { format } from "date-fns";
 const ShiftContext = createContext();
 
 export const ShiftProvider = ({ children }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, userProfile } = useAuth();
   const [shiftState, setShiftState] = useState(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [heartbeatRequired, setHeartbeatRequired] = useState(false);
   const [remainingGraceSeconds, setRemainingGraceSeconds] = useState(0);
   const [reconciliationError, setReconciliationError] = useState(null);
   const intervalRef = useRef(null);
+
+  // ── BREAK STATE ─────────────────────────────────────────────────────────
+  const [isOnBreak, _setIsOnBreak] = useState(false);
+  const isOnBreakRef = useRef(false);
+  const setIsOnBreak = useCallback((val) => {
+    isOnBreakRef.current = val;
+    _setIsOnBreak(val);
+  }, []);
+
+  const breakStartRef = useRef(null);
+  const [currentBreakSeconds, setCurrentBreakSeconds] = useState(0);
+  
+  const configBreakMins = userProfile?.salary?.monthly?.allowedBreakMinutes ?? 30;
+
+  const [allowedBreakMinutes, _setAllowedBreakMinutes] = useState(configBreakMins);
+  const allowedBreakMinutesRef = useRef(configBreakMins);
+  const setAllowedBreakMinutes = useCallback((val) => {
+    allowedBreakMinutesRef.current = val;
+    _setAllowedBreakMinutes(val);
+  }, []);
+
+  useEffect(() => {
+    if (userProfile?.salary?.monthly?.allowedBreakMinutes !== undefined) {
+      setAllowedBreakMinutes(userProfile.salary.monthly.allowedBreakMinutes);
+    }
+  }, [userProfile?.salary?.monthly?.allowedBreakMinutes, setAllowedBreakMinutes]);
+
+  const [breakExceeded, _setBreakExceeded] = useState(false);
+  const breakExceededRef = useRef(false);
+  const setBreakExceeded = useCallback((val) => {
+    breakExceededRef.current = val;
+    _setBreakExceeded(val);
+  }, []);
+
+  const maxBreaksAllowed = Number(userProfile?.salary?.monthly?.allowedBreakCount || 1);
+  const [breaksTakenCount, setBreaksTakenCount] = useState(0);
+
+  const totalExceededSecondsRef = useRef(0);
+  const activeBreakIdRef = useRef(null);
 
   // Helper to clear local state
   const clearLocalShift = useCallback(() => {
@@ -35,8 +76,16 @@ export const ShiftProvider = ({ children }) => {
     setElapsedSeconds(0);
     setHeartbeatRequired(false);
     setRemainingGraceSeconds(0);
+    
+    breakStartRef.current = null;
+    activeBreakIdRef.current = null;
+    setIsOnBreak(false);
+    setCurrentBreakSeconds(0);
+    setBreakExceeded(false);
+    totalExceededSecondsRef.current = 0;
+
     if (intervalRef.current) clearInterval(intervalRef.current);
-  }, []);
+  }, [setIsOnBreak, setBreakExceeded]);
 
   // Helper to ensure we have a Date object regardless of source (ISO string or Firestore Timestamp)
   const ensureDate = (dateVal) => {
@@ -57,6 +106,18 @@ export const ShiftProvider = ({ children }) => {
       
       const elapsed = Math.floor((now - start) / 1000);
       setElapsedSeconds(elapsed);
+
+      if (isOnBreakRef.current && breakStartRef.current) {
+        const breakElapsedSeconds = Math.floor((Date.now() - breakStartRef.current) / 1000);
+        setCurrentBreakSeconds(breakElapsedSeconds);
+        
+        const limitInSeconds = Number(allowedBreakMinutesRef.current) * 60;
+        const isExceeded = breakElapsedSeconds > limitInSeconds;
+        if (isExceeded !== breakExceededRef.current) {
+          setBreakExceeded(isExceeded);
+        }
+        console.log("Break Math:", { currentBreakSeconds: breakElapsedSeconds, limitInSeconds, isExceeded });
+      }
 
       const timeSinceHeartbeat = now - last;
       const graceEndTime = HEARTBEAT_INTERVAL_MS + HEARTBEAT_GRACE_PERIOD_MS;
@@ -85,9 +146,24 @@ export const ShiftProvider = ({ children }) => {
       try {
         const { collection, query, where, getDocs, orderBy, limit } = await import("firebase/firestore");
         const shiftsRef = collection(db, "users", currentUser.uid, "shifts");
+        
+        // Calculate Daily Breaks
+        const todayStr = new Date().toLocaleDateString('en-CA');
+        const dailyQ = query(shiftsRef, where("date", "==", todayStr));
+        const dailySnap = await getDocs(dailyQ);
+        const dailyShifts = dailySnap.docs.map(doc => doc.data());
+        
+        const calculateDailyBreaks = (shiftsArray) => {
+          if (!shiftsArray) return 0;
+          return shiftsArray.reduce((total, shift) => {
+            return total + (shift.breaks?.length || 0);
+          }, 0);
+        };
+        setBreaksTakenCount(calculateDailyBreaks(dailyShifts));
+
         const q = query(
           shiftsRef,
-          where("status", "==", "active"),
+          where("status", "in", ["active", "on_break"]),
           orderBy("startTime", "desc")
         );
 
@@ -143,9 +219,22 @@ export const ShiftProvider = ({ children }) => {
             userId: newest.userId,
             startTime: ensureDate(newest.startTime).toISOString(),
             lastHeartbeat: ensureDate(newest.lastHeartbeat || newest.startTime).toISOString(),
-            status: "active",
+            status: newest.status,
             projectId: newest.projectId || null
           };
+
+          setAllowedBreakMinutes(newest.allowedBreakMinutes ?? configBreakMins);
+
+          if (newest.status === 'on_break' && newest.breaks) {
+            const activeBreak = newest.breaks.find(b => b.breakEndTime === null);
+            if (activeBreak) {
+              activeBreakIdRef.current = activeBreak.breakId;
+              breakStartRef.current = activeBreak.breakStartTime.toMillis();
+              setIsOnBreak(true);
+            }
+          }
+          totalExceededSecondsRef.current = (newest.totalExceededBreakMinutes || 0) * 60;
+
           localStorage.setItem(LOCAL_STORAGE_SHIFT_KEY, JSON.stringify(newestShift));
           setShiftState(newestShift);
           startTimer(newestShift.startTime, newestShift.lastHeartbeat);
@@ -174,7 +263,8 @@ export const ShiftProvider = ({ children }) => {
         status: "active",
         isValidated: false,
         date: new Date().toLocaleDateString('en-CA'),
-        projectId: projectId
+        projectId: projectId,
+        allowedBreakMinutes: configBreakMins
       };
 
       console.log("HARD-LOCKED CREATION PAYLOAD:", newShiftPayload);
@@ -265,6 +355,107 @@ export const ShiftProvider = ({ children }) => {
     }
   };
 
+  const startBreak = async () => {
+    if (!shiftState?.shiftId || isOnBreakRef.current) return;
+    
+    if (breaksTakenCount >= maxBreaksAllowed) {
+      alert("Maximum breaks reached for this shift.");
+      return;
+    }
+
+    const now = new Date();
+    const breakId = crypto.randomUUID();
+
+    const shiftRef = doc(db, 'users', currentUser.uid, 'shifts', shiftState.shiftId);
+    await updateDoc(shiftRef, {
+      status: 'on_break',
+      breaks: arrayUnion({
+        breakId,
+        breakStartTime: Timestamp.fromDate(now),
+        breakEndTime: null,
+        breakDurationMinutes: 0,
+        exceededMinutes: 0,
+        wasExceeded: false,
+      }),
+      updatedAt: serverTimestamp(),
+    });
+
+    breakStartRef.current = Date.now();
+    setIsOnBreak(true);
+    setCurrentBreakSeconds(0);
+    setBreakExceeded(false);
+    setBreaksTakenCount(prev => prev + 1);
+    activeBreakIdRef.current = breakId;
+    
+    setShiftState(prev => ({ ...prev, status: 'on_break' }));
+  };
+
+  const stopBreak = async () => {
+    if (!shiftState?.shiftId || !isOnBreakRef.current || !breakStartRef.current) return;
+
+    const now = new Date();
+    const breakEndMs = Date.now();
+    const breakDurationMs = breakEndMs - breakStartRef.current;
+    const breakDurationMins = parseFloat((breakDurationMs / 60000).toFixed(2));
+    const allowedMins = allowedBreakMinutesRef.current;
+    const exceededMins = parseFloat(Math.max(0, breakDurationMins - allowedMins).toFixed(2));
+    const wasExceeded = exceededMins > 0;
+
+    const exceededSeconds = exceededMins * 60;
+    totalExceededSecondsRef.current += exceededSeconds;
+
+    const shiftRef = doc(db, 'users', currentUser.uid, 'shifts', shiftState.shiftId);
+    const shiftSnap = await getDoc(shiftRef);
+    const shiftData = shiftSnap.data();
+
+    const updatedBreaks = (shiftData.breaks ?? []).map((b) => {
+      if (b.breakId !== activeBreakIdRef.current) return b;
+      return {
+        ...b,
+        breakEndTime: Timestamp.fromDate(now),
+        breakDurationMinutes: breakDurationMins,
+        exceededMinutes: exceededMins,
+        wasExceeded,
+      };
+    });
+
+    const totalBreakMins = updatedBreaks.reduce(
+      (sum, b) => sum + (b.breakDurationMinutes ?? 0), 0
+    );
+    const totalExceededMins = updatedBreaks.reduce(
+      (sum, b) => sum + (b.exceededMinutes ?? 0), 0
+    );
+
+    await updateDoc(shiftRef, {
+      status: 'active',
+      breaks: updatedBreaks,
+      totalBreakMinutes: parseFloat(totalBreakMins.toFixed(2)),
+      totalExceededBreakMinutes: parseFloat(totalExceededMins.toFixed(2)),
+      updatedAt: serverTimestamp(),
+    });
+
+    breakStartRef.current = null;
+    activeBreakIdRef.current = null;
+    setIsOnBreak(false);
+    setCurrentBreakSeconds(0);
+    setBreakExceeded(false);
+    
+    setShiftState(prev => ({ ...prev, status: 'active' }));
+  };
+
+  const currentExcessSeconds = isOnBreak
+    ? Math.max(0, currentBreakSeconds - (allowedBreakMinutes * 60))
+    : 0;
+
+  const billableElapsedSeconds = Math.max(
+    0,
+    elapsedSeconds 
+    - totalExceededSecondsRef.current 
+    - currentExcessSeconds
+  );
+
+  console.log("Break Limits Engine:", { maxBreaksAllowed, breaksTakenCount, isOnBreak });
+
   return (
     <ShiftContext.Provider 
       value={{ 
@@ -275,7 +466,16 @@ export const ShiftProvider = ({ children }) => {
         elapsedSeconds, 
         heartbeatRequired,
         remainingGraceSeconds,
-        reconciliationError
+        reconciliationError,
+        isOnBreak,
+        currentBreakSeconds,
+        allowedBreakMinutes,
+        breakExceeded,
+        billableElapsedSeconds,
+        startBreak,
+        stopBreak,
+        maxBreaksAllowed,
+        breaksTakenCount
       }}
     >
       {children}

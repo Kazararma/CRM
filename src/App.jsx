@@ -16,6 +16,7 @@ import SalaryPage from "./pages/Salary/SalaryPage";
 import LeadsPage from "./pages/Leads/LeadsPage";
 import OpportunitiesPage from "./pages/Opportunities/OpportunitiesPage";
 import InvoicesPage from "./pages/Invoices/InvoicesPage";
+import ImportExportPage from "./pages/ImportExport/ImportExportPage";
 import ComingSoon from "./components/shared/ComingSoon";
 import WorkHourSection from "./components/workhours/WorkHourSection";
 import FloatingShiftTimer from "./components/global/FloatingShiftTimer";
@@ -82,6 +83,14 @@ const App = () => {
                         element={
                           <RoleGuard allowedRoles={["admin", "super_admin"]}>
                             <PeoplePage />
+                          </RoleGuard>
+                        } 
+                      />
+                      <Route 
+                        path="import-export" 
+                        element={
+                          <RoleGuard allowedRoles={["admin", "super_admin"]}>
+                            <ImportExportPage />
                           </RoleGuard>
                         } 
                       />

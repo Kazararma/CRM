@@ -1,0 +1,33 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ── Worklog Attachments ─────────────────────────────────────────────────
+    match /worklogs/{projectId}/{workerId}/{fileName} {
+
+      // READ: The uploading worker OR any admin/super_admin can read the file.
+      allow read: if request.auth != null && (
+        request.auth.uid == workerId ||
+        firestore.get(
+          /databases/(default)/documents/users/$(request.auth.uid)
+        ).data.role in ['admin', 'super_admin']
+      );
+
+      // WRITE (Upload): Only the authenticated worker can write to their own path.
+      // Enforces:
+      //   - Uploader must be the workerId in the path (no impersonation)
+      //   - File must be PDF or PNG only (MIME type check)
+      //   - File size must be ≤ 5MB
+      allow write: if request.auth != null
+        && request.auth.uid == workerId
+        && request.resource.contentType in ['application/pdf', 'image/png']
+        && request.resource.size <= 5 * 1024 * 1024;  // 5MB in bytes
+
+      // DELETE: Only super_admins can delete stored attachments.
+      allow delete: if request.auth != null &&
+        firestore.get(
+          /databases/(default)/documents/users/$(request.auth.uid)
+        ).data.role == 'super_admin';
+    }
+  }
+}

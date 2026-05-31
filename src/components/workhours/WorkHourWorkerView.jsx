@@ -5,7 +5,7 @@ import { useShifts } from "../../hooks/useShifts";
 import { useDailyLogs } from "../../hooks/useDailyLogs";
 import WorkHourCalendar from "./WorkHourCalendar";
 import { format } from "date-fns";
-import { Clock, FileText, CheckCircle2, AlertCircle } from "lucide-react";
+import { Clock, FileText, CheckCircle2, AlertCircle, Image as ImageIcon } from "lucide-react";
 import ErrorDisplay from "../shared/ErrorDisplay";
 import { validateShiftsForUser } from "../../utils/shiftValidation";
 import { useEffect } from "react";
@@ -141,6 +141,27 @@ const WorkHourWorkerView = () => {
                   </span>
                 </div>
                 <p className="text-sm text-gray-700 line-clamp-2">{log.description || log.content}</p>
+                {log.attachmentUrl && (
+                  <div className="mt-2 flex items-center gap-2">
+                    {log.attachmentType === 'pdf' ? (
+                      <FileText size={14} className="text-red-500 flex-shrink-0" />
+                    ) : (
+                      <ImageIcon size={14} className="text-blue-500 flex-shrink-0" />
+                    )}
+                    <a
+                      href={log.attachmentUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-blue-600 hover:underline truncate max-w-[200px]"
+                      title={log.attachmentFileName ?? 'View Attachment'}
+                    >
+                      {log.attachmentFileName ?? 'View Proof'}
+                    </a>
+                    <span className="text-xs text-gray-400 uppercase">
+                      {log.attachmentType}
+                    </span>
+                  </div>
+                )}
               </div>
             )) : (
               <p className="text-sm text-gray-400 italic">No work logs submitted for this day.</p>

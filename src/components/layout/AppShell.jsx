@@ -12,7 +12,9 @@ import {
   Receipt,
   LogOut, 
   Menu, 
-  X 
+  X,
+  BarChart2,
+  ArrowLeftRight
 } from "lucide-react";
 
 import Avatar from "../shared/Avatar";
@@ -25,6 +27,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
   const navItems = [
     { name: "Dashboard",     path: "/dashboard",     icon: LayoutDashboard, visible: true },
+    { name: "Import/Export", path: "/import-export", icon: ArrowLeftRight,  visible: isAdmin },
     { name: "Leads",         path: "/leads",         icon: Target,          visible: isAdmin },
     { name: "Opportunities", path: "/opportunities", icon: TrendingUp,       visible: isAdmin },
     { name: "Projects",      path: "/projects",      icon: FolderKanban,    visible: isAdmin },
@@ -45,37 +48,37 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed top-0 left-0 h-full bg-slate-900 text-white w-64 transform ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 transition-transform duration-200 ease-in-out z-30 flex flex-col`}>
-        <div className="p-6 flex flex-col items-center justify-center gap-3 mb-2">
+      <aside className={`fixed top-0 left-0 h-full bg-black text-white w-64 transform ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 transition-transform duration-200 ease-in-out z-30 flex flex-col`}>
+        <div className="pt-8 pb-4 flex flex-col items-center justify-center relative">
           <img 
             src="/wavelet-logo.png" 
             alt="Wavelet Logo" 
-            className="w-24 h-24 object-contain" 
+            className="w-48 h-48 object-contain drop-shadow-xl" 
           />
-          <span className="text-xl font-black tracking-tight text-white text-center">
+          <span className="text-2xl font-black tracking-tight text-white text-center -mt-6">
             WAVELET CRM
           </span>
         </div>
 
-        <nav className="flex-1 px-4 space-y-2 overflow-y-auto pb-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full">
+        <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto pb-4 pt-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-zinc-800 [&::-webkit-scrollbar-thumb]:rounded-full">
           {navItems.filter(item => item.visible).map((item) => (
             <Link
               key={item.name}
               to={item.path}
               onClick={() => window.innerWidth < 768 && toggleSidebar()}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                 location.pathname === item.path 
-                  ? "bg-blue-600 text-white" 
-                  : "text-slate-300 hover:bg-slate-800"
+                  ? "bg-white text-black shadow-lg font-bold scale-[1.02]" 
+                  : "text-white hover:bg-white/10 font-medium"
               }`}
             >
-              <item.icon size={20} />
-              <span className="font-medium">{item.name}</span>
+              <item.icon size={20} className={location.pathname === item.path ? "text-black" : "text-white"} />
+              <span>{item.name}</span>
             </Link>
           ))}
         </nav>
 
-        <div className="p-4 border-t border-slate-800">
+        <div className="p-4 mx-4 mb-4 rounded-xl bg-zinc-900/50 border border-zinc-800/50">
           <div className="flex items-center gap-3 mb-4 px-2">
             <Avatar 
               src={userProfile?.photoURL} 
@@ -84,12 +87,12 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             />
             <div className="overflow-hidden">
               <p className="text-sm font-semibold truncate">{userProfile?.displayName}</p>
-              <p className="text-xs text-slate-400 capitalize">{role?.replace("_", " ")}</p>
+              <p className="text-xs text-white/70 font-medium capitalize tracking-wide">{role?.replace("_", " ")}</p>
             </div>
           </div>
           <button
             onClick={signOut}
-            className="w-full flex items-center gap-3 px-4 py-2 text-slate-300 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
+            className="w-full flex items-center gap-3 px-4 py-2 mt-2 text-white hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors text-sm font-medium"
           >
             <LogOut size={18} />
             <span className="font-medium">Sign Out</span>
