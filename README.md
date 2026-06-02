@@ -83,3 +83,4 @@ Wavelet CRM is a full-stack Single Page Application (SPA) designed to manage the
    ```bash
    npm run dev
    ```
+   
