@@ -8,9 +8,8 @@ service firebase.storage {
       // READ: The uploading worker OR any admin/super_admin can read the file.
       allow read: if request.auth != null && (
         request.auth.uid == workerId ||
-        firestore.get(
-          /databases/(default)/documents/users/$(request.auth.uid)
-        ).data.role in ['admin', 'super_admin']
+        firestore.get(path('/databases/(default)/documents/users/' + request.auth.uid)).data.role == 'admin' ||
+        firestore.get(path('/databases/(default)/documents/users/' + request.auth.uid)).data.role == 'super_admin'
       );
 
       // WRITE (Upload): Only the authenticated worker can write to their own path.
@@ -20,14 +19,18 @@ service firebase.storage {
       //   - File size must be ≤ 5MB
       allow write: if request.auth != null
         && request.auth.uid == workerId
-        && request.resource.contentType in ['application/pdf', 'image/png']
+        && request.resource.contentType.matches('application/pdf|image/png')
         && request.resource.size <= 5 * 1024 * 1024;  // 5MB in bytes
 
       // DELETE: Only super_admins can delete stored attachments.
       allow delete: if request.auth != null &&
-        firestore.get(
-          /databases/(default)/documents/users/$(request.auth.uid)
-        ).data.role == 'super_admin';
+        firestore.get(path('/databases/(default)/documents/users/' + request.auth.uid)).data.role == 'super_admin';
+    }
+
+    // ── Proposals ───────────────────────────────────────────────────────────
+    // REMINDER: Change 'if true;' to 'if request.auth != null;' before going to production
+    match /proposals/{allPaths=**} {
+      allow read, write: if true;
     }
   }
 }

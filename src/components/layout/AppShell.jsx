@@ -50,7 +50,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       {/* Sidebar */}
       <aside className={`fixed top-0 left-0 h-full bg-black text-white w-64 transform ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 transition-transform duration-200 ease-in-out z-30 flex flex-col`}>
         <div className="pt-8 pb-4 flex flex-col items-center justify-center relative">
-          <span className="text-3xl font-black tracking-tight text-white text-center">
+          <span className="text-2xl font-black tracking-tight text-white text-center">
             CRM
           </span>
         </div>

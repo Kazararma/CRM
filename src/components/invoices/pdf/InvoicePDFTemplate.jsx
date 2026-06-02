@@ -25,7 +25,9 @@ export const InvoicePDFTemplate = ({ invoice }) => {
             <Text style={styles.invoiceMeta}>Invoice Date: {formattedDate}</Text>
           </View>
           <View style={{ alignItems: 'flex-end' }}>
-            {/* Logo removed */}
+            {invoice.company?.logoUrl ? (
+              <Image src={invoice.company.logoUrl} style={styles.logo} />
+            ) : null}
           </View>
         </View>
 

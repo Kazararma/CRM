@@ -1,8 +1,8 @@
-# CRM 🌊
+# WAVELET CRM 🌊
 
 > A real-time, enterprise-grade business management platform that seamlessly bridges client acquisition, project execution, automated payroll, and financial invoicing.
 
-CRM is a full-stack Single Page Application (SPA) designed to manage the entire lifecycle of a business. It transforms raw leads into actionable projects, tracks employee labor with high-fidelity timers, calculates complex payroll structures in real-time, and generates professional PDF invoices on the fly.
+Wavelet CRM is a full-stack Single Page Application (SPA) designed to manage the entire lifecycle of a business. It transforms raw leads into actionable projects, tracks employee labor with high-fidelity timers, calculates complex payroll structures in real-time, and generates professional PDF invoices on the fly.
 
 ## ✨ Core Features
 
