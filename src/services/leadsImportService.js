@@ -5,8 +5,12 @@ export const batchWriteLeads = async (validLeads, userId) => {
   const batch = writeBatch(db);
   const leadsRef = collection(db, 'leads');
   
+  const importedLeadIds = [];
+  let successCount = 0;
+
   validLeads.forEach(lead => {
     const newDocRef = doc(leadsRef);
+    importedLeadIds.push(newDocRef.id);
     const { _errors, id, ...cleanLead } = lead;
     
     batch.set(newDocRef, {
@@ -21,7 +25,9 @@ export const batchWriteLeads = async (validLeads, userId) => {
       isConvertedToOpportunity: false,
       isDeleted: false
     });
+    successCount++;
   });
   
   await batch.commit();
+  return { success: successCount, failed: 0, importedLeadIds };
 };

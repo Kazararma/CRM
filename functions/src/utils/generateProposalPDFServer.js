@@ -1,11 +1,11 @@
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import { numberToWords } from './numberToWords';
+const { jsPDF } = require('jspdf');
+require('jspdf-autotable');
+const { numberToWords } = require('./numberToWords');
+const fetch = require('node-fetch');
 
-export async function generateProposalPDF({ 
+async function generateProposalPDFBuffer({ 
   companySettings, 
-  proposalHeader, 
-  billingTo,
+  lead,
   lineItems, 
   totals, 
   specialTerms,
@@ -25,14 +25,15 @@ export async function generateProposalPDF({
 
   const loadLogoAsBase64 = async (url) => {
     try {
+      if (url.startsWith('/')) {
+        // Local path not resolvable from Cloud Functions easily
+        return null;
+      }
       const response = await fetch(url);
       if (!response.ok) return null;
-      const blob = await response.blob();
-      return await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.readAsDataURL(blob);
-      });
+      const buffer = await response.buffer();
+      const contentType = response.headers.get('content-type') || 'image/png';
+      return `data:${contentType};base64,${buffer.toString('base64')}`;
     } catch {
       return null;
     }
@@ -41,16 +42,6 @@ export async function generateProposalPDF({
   let logoDataUrl = null;
   if (companySettings?.company?.logoUrl) {
     logoDataUrl = await loadLogoAsBase64(companySettings.company.logoUrl);
-  }
-
-  let logoDims = { w: 35, h: 20 };
-  if (logoDataUrl) {
-    logoDims = await new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => resolve({ w: img.width, h: img.height });
-      img.onerror = () => resolve({ w: 35, h: 20 });
-      img.src = logoDataUrl;
-    });
   }
 
   // --- BLOCK 1: Header Bar ---
@@ -71,17 +62,9 @@ export async function generateProposalPDF({
         if (ext === 'JPEG' || ext === 'JPG') format = 'JPEG';
         else if (ext === 'WEBP') format = 'WEBP';
       }
-      
-      const ratio = logoDims.w / logoDims.h;
-      let renderW = 35;
-      let renderH = 20;
-      
-      if (ratio > (35 / 20)) {
-        renderH = 35 / ratio;
-      } else {
-        renderW = 20 * ratio;
-      }
-      
+      // Fixed dims for server
+      const renderW = 35;
+      const renderH = 20;
       const renderX = PAGE_W - MARGIN - renderW;
       const renderY = 4 + (20 - renderH) / 2;
 
@@ -101,27 +84,38 @@ export async function generateProposalPDF({
   // --- BLOCK 2: Proposal Meta Row ---
   function formatPdfDate(dateStr) {
     if (!dateStr) return 'N/A';
-    const [y, m, d] = dateStr.split('-');
+    // If it's a Firestore Timestamp, handle it
+    if (dateStr && dateStr.toDate) {
+      dateStr = dateStr.toDate().toISOString().split('T')[0];
+    } else if (dateStr instanceof Date) {
+      dateStr = dateStr.toISOString().split('T')[0];
+    }
+    if (typeof dateStr !== 'string') return 'N/A';
+    const parts = dateStr.split('T')[0].split('-');
+    if (parts.length !== 3) return dateStr;
+    const [y, m, d] = parts;
     return `${d}/${m}/${y}`;
   }
 
+  const p = lead.proposal || {};
+  
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(...COLOR_MID_GREY);
-  doc.text(`Creation Date: ${formatPdfDate(proposalHeader.creationDate)}   Expiry Date: ${formatPdfDate(proposalHeader.expiryDate)}   Payment Terms: ${proposalHeader.paymentTerms || 'N/A'}`, MARGIN, currentY);
+  doc.text(`Creation Date: ${formatPdfDate(p.creationDate)}   Expiry Date: ${formatPdfDate(p.expiryDate)}   Payment Terms: ${p.paymentTerms || 'N/A'}`, MARGIN, currentY);
   
   currentY += 4.5;
-  doc.text(`Delivery/Completion: ${proposalHeader.deliveryCompletion || 'N/A'}`, MARGIN, currentY);
+  doc.text(`Delivery/Completion: ${p.deliveryCompletion || 'N/A'}`, MARGIN, currentY);
 
   currentY += 4.5;
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
   doc.setTextColor(...COLOR_DARK);
-  doc.text(`To: ${proposalHeader.to || 'Client'}`, MARGIN, currentY);
+  doc.text(`To: ${p.to || lead.clientName || 'Client'}`, MARGIN, currentY);
 
   currentY += 4.5;
   doc.setFont('helvetica', 'normal');
-  doc.text(`Dear ${proposalHeader.dear || 'Sir/Madam'},`, MARGIN, currentY);
+  doc.text(`Dear ${p.dear || 'Sir/Madam'},`, MARGIN, currentY);
 
   currentY += 6;
   doc.setFont('helvetica', 'italic');
@@ -147,16 +141,16 @@ export async function generateProposalPDF({
 
   currentY += 4;
 
-  autoTable(doc, {
+  doc.autoTable({
     startY: currentY,
     head: [['Name', 'Company', 'Address', 'Pincode', 'Contact Info', 'GST No.']],
     body: [[
-      billingTo.name || 'N/A',
-      billingTo.companyName || 'N/A',
-      `${billingTo.address || 'N/A'}\n${billingTo.city || 'N/A'}`,
-      `${billingTo.city || 'N/A'}-\n${billingTo.pincode || 'N/A'}`,
-      (billingTo.contactNumbers || '').split(',').join('\n'),
-      billingTo.gstNo || 'N/A'
+      lead.clientName || 'N/A',
+      lead.companyName || 'N/A',
+      `${lead.address || 'N/A'}\n${lead.city || 'N/A'}`,
+      `${lead.city || 'N/A'}-\n${lead.pincode || 'N/A'}`,
+      (lead.phoneNumber || '').split(',').join('\n'),
+      lead.gstNo || 'N/A'
     ]],
     styles: { font: 'helvetica', fontSize: 8, cellPadding: 1.8 },
     headStyles: { fillColor: COLOR_DARK, textColor: COLOR_WHITE, fontSize: 8, fontStyle: 'bold' },
@@ -172,11 +166,11 @@ export async function generateProposalPDF({
   });
 
   currentY = doc.lastAutoTable.finalY + 4;
-  if (billingTo.website) {
+  if (lead.website) {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     doc.setTextColor(...COLOR_MID_GREY);
-    doc.text(`Web: ${billingTo.website}`, MARGIN, currentY);
+    doc.text(`Web: ${lead.website}`, MARGIN, currentY);
     currentY += 4;
   }
 
@@ -198,7 +192,7 @@ export async function generateProposalPDF({
     `Rs ${fmtNum(item.amount)}`,
   ]);
 
-  autoTable(doc, {
+  doc.autoTable({
     startY: currentY,
     head: [['S.No', 'Item & Description', 'Unit Price', 'Qty', 'Amount']],
     body: tableBody,
@@ -230,7 +224,7 @@ export async function generateProposalPDF({
   }
   totalsBody.push(['Total', `Rs ${fmtNum(totals.grandTotal)}`]);
 
-  autoTable(doc, {
+  doc.autoTable({
     startY: currentY,
     margin: { left: PAGE_W - MARGIN - 82 },
     body: totalsBody,
@@ -339,14 +333,8 @@ export async function generateProposalPDF({
   doc.setTextColor(160, 160, 160);
   doc.text('This is a system generated proposal and does not require a physical signature.', PAGE_W / 2, PAGE_H - 6, { align: 'center' });
 
-  // --- BLOCK 8: Download Trigger ---
-  const safeTitle = (opportunityTitle ?? 'Proposal')
-    .replace(/[^a-zA-Z0-9_\- ]/g, '')
-    .replace(/\s+/g, '_');
-  const timestamp = new Date().toISOString().split('T')[0];
-
-  doc.save(`Proposal_${safeTitle}_${timestamp}.pdf`);
-  
-  // Return a Blob for Firebase Storage upload
-  return doc.output('blob');
+  // --- BLOCK 8: Return Buffer ---
+  return Buffer.from(doc.output('arraybuffer'));
 }
+
+module.exports = { generateProposalPDFBuffer };

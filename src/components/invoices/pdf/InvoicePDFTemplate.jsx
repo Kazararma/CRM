@@ -25,9 +25,7 @@ export const InvoicePDFTemplate = ({ invoice }) => {
             <Text style={styles.invoiceMeta}>Invoice Date: {formattedDate}</Text>
           </View>
           <View style={{ alignItems: 'flex-end' }}>
-            {invoice.company?.logoUrl ? (
-              <Image src={invoice.company.logoUrl} style={styles.logo} />
-            ) : null}
+            <Image src="/wavelet-logo.png" style={styles.logo} />
           </View>
         </View>
 

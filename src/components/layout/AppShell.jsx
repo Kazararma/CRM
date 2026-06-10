@@ -14,7 +14,8 @@ import {
   Menu, 
   X,
   BarChart2,
-  ArrowLeftRight
+  ArrowLeftRight,
+  Settings
 } from "lucide-react";
 
 import Avatar from "../shared/Avatar";
@@ -35,6 +36,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { name: "People",        path: "/people",        icon: Users,           visible: isAdmin },
     { name: "Work Hours",    path: "/work-hours",    icon: Clock,           visible: true },
     { name: "Salary",        path: "/salary",        icon: CreditCard,      visible: true },
+    { name: "Settings",      path: "/settings",      icon: Settings,        visible: role === "super_admin" },
   ];
 
   return (
@@ -50,8 +52,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       {/* Sidebar */}
       <aside className={`fixed top-0 left-0 h-full bg-black text-white w-64 transform ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 transition-transform duration-200 ease-in-out z-30 flex flex-col`}>
         <div className="pt-8 pb-4 flex flex-col items-center justify-center relative">
-          <span className="text-2xl font-black tracking-tight text-white text-center">
-            CRM
+          <span className="text-2xl font-black tracking-tight text-white text-center mt-2">
+            CRM SAAS
           </span>
         </div>
 
@@ -117,7 +119,7 @@ const AppShell = ({ children }) => {
             <Menu size={24} />
           </button>
           <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">CRM</h1>
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight">CRM SAAS</h1>
           </div>
           <div className="w-10" /> {/* Spacer */}
         </header>

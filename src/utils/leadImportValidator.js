@@ -1,4 +1,6 @@
-export const validateLeadRow = (lead) => {
+const E164_REGEX = /^\+[1-9]\d{6,14}$/;
+
+export const validateLeadRow = (lead, options = { aiOutreachEnabled: false }) => {
   const errors = {};
   
   if (!lead.projectTitle || String(lead.projectTitle).trim() === '') {
@@ -22,8 +24,11 @@ export const validateLeadRow = (lead) => {
     errors.clientName = 'Required';
   }
   
-  if (!lead.phoneNumber || String(lead.phoneNumber).trim().length < 5) {
+  const phone = lead.phoneNumber ? String(lead.phoneNumber).trim() : '';
+  if (!phone || phone.length < 5) {
     errors.phoneNumber = 'Invalid Phone';
+  } else if (options.aiOutreachEnabled && !E164_REGEX.test(phone)) {
+    errors.phoneNumber = `Format must be E.164 (e.g., +919876543210)`;
   }
   
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

@@ -23,9 +23,9 @@ export default function SendEmailModal({
   useEffect(() => {
     if (isOpen) {
       setEmail(initialEmail || '');
-      setSubject(`Proposal — ${opportunityTitle || 'Your Project'}`);
+      setSubject(`Proposal from CRM SaaS — ${opportunityTitle || 'Your Project'}`);
       
-      const signature = companySettings?.preparedBy?.signatureText || 'Team';
+      const signature = companySettings?.preparedBy?.signatureText || 'CRM SaaS Team';
       const dearText = proposalDear || 'Client';
       const totalStr = formatINR(grandTotal);
 
@@ -60,7 +60,7 @@ ${signature}`
 
       const templateParams = {
         to_email: email,
-        from_name: companySettings?.company?.name || 'CRM',
+        from_name: companySettings?.company?.name || 'CRM SaaS',
         reply_to: "your_email@example.com",
         subject: subject,
         message: body,

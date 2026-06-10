@@ -32,6 +32,12 @@ Wavelet CRM is a full-stack Single Page Application (SPA) designed to manage the
 * **Project Integration:** Seamless one-click invoice generation directly from the Project Management dashboard, auto-filling client details and outstanding balances.
 * **Responsive UI:** Fully mobile-optimized interface with scalable layout grids and custom scrollbars.
 
+### 🤖 6. Agency AI & Telephony (SaaS Edition)
+* **Auto-Onboarding Web Crawler:** Scrape any business URL to automatically generate a master AI system prompt for the tenant.
+* **Omnichannel AI Voice & Messaging:** Seamless integrations with Twilio (SMS/WhatsApp), Vapi, Retell, and Bland AI for AI-driven outbound voice and text campaigns.
+* **Secure Tenant Credentials:** Agency clients can securely input and verify their own AI API keys. Keys are encrypted at rest via Firebase Functions.
+* **Asynchronous Task Queuing:** Handles bulk lead processing and AI outreaches effortlessly utilizing Firebase Cloud Tasks.
+
 ---
 
 ## 💻 Tech Stack
