@@ -2,75 +2,130 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
+    // ─── Helper Functions ───────────────────────────────────────────────
+
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    function isAdmin() {
-      return isAuthenticated() && 
-             exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'super_admin'];
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
-    // BROAD ACCESS TO USERS
+    function isSuperAdmin() {
+      return isAuthenticated() && getUserData().role == 'super_admin';
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (getUserData().role == 'admin' || getUserData().role == 'super_admin');
+    }
+
+    function isWorker() {
+      return isAuthenticated() && getUserData().role == 'worker';
+    }
+
+    function isAssignedToProject(projectId) {
+      let project = get(/databases/$(database)/documents/projects/$(projectId)).data;
+      return request.auth.uid in project.assignedWorkers || request.auth.uid in project.assignedAdmins;
+    }
+
+    // ─── users Collection ────────────────────────────────────────────────
     match /users/{userId} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow create: if isAuthenticated() && request.auth.uid == userId
+                    && request.resource.data.role == 'worker';
       
+      // Strict role validation
+      allow update: if isAuthenticated() && (
+        isSuperAdmin()
+        ||
+        (isAdmin()
+          && userId != request.auth.uid
+          && getUserData().role != 'super_admin'
+          && resource.data.role != 'super_admin'
+          && request.resource.data.role == 'admin'
+          && resource.data.role == 'worker')
+        ||
+        (request.auth.uid == userId
+          && request.resource.data.role == resource.data.role)
+      );
+      allow delete: if false;
+
       match /{allSubcollections=**} {
         allow read, write: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
       }
     }
 
-    // BROAD ACCESS TO PROJECTS
+    // ─── projects Collection ─────────────────────────────────────────────
     match /projects/{projectId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
-      
-      // Explicitly allow reading any subcollection for any logged in user
-      match /{allSubcollections=**} {
-        allow read: if isAuthenticated();
-        allow write: if isAdmin() || (isAuthenticated() && allSubcollections == 'workLogs');
+      allow read: if isAdmin() || (isAuthenticated() && isAssignedToProject(projectId));
+      allow create: if isAdmin();
+      allow update: if isAdmin() || (isAuthenticated() && isAssignedToProject(projectId));
+      allow delete: if isAdmin();
+
+      match /workLogs/{logId} {
+        allow read: if isAdmin() || (isAuthenticated() && isAssignedToProject(projectId));
+        allow create: if isAuthenticated()
+                      && (isAdmin() || isAssignedToProject(projectId))
+                      && request.resource.data.authorUid == request.auth.uid;
+        allow update, delete: if false; 
+      }
+
+      match /meetingLogs/{logId} {
+        allow read: if isAdmin() || (isAuthenticated() && isAssignedToProject(projectId));
+        allow create: if isAuthenticated()
+                      && (isAdmin() || isAssignedToProject(projectId))
+                      && request.resource.data.loggedBy == request.auth.uid;
+        allow update, delete: if false;
+      }
+
+      match /budgetLogs/{logId} {
+        allow read: if isAdmin() || (isAuthenticated() && isAssignedToProject(projectId));
+        allow create: if isAuthenticated()
+                      && (isAdmin() || isAssignedToProject(projectId))
+                      && request.resource.data.changedBy == request.auth.uid;
+        allow update, delete: if false;
+      }
+
+      match /stageChangeLogs/{logId} {
+        allow read: if isAdmin() || (isAuthenticated() && isAssignedToProject(projectId));
+        allow create: if isAuthenticated()
+                      && (isAdmin() || isAssignedToProject(projectId))
+                      && request.resource.data.changedBy == request.auth.uid;
+        allow update, delete: if false;
       }
     }
 
-    // BROAD ACCESS TO ACTIVITY LOGS
+    // ─── EXTRA COLLECTIONS ───────────────────────────────────────────────
+
     match /projectActivityLogs/{logId} {
-      allow read: if isAuthenticated();
+      allow read: if isAdmin() || (isAuthenticated() && isAssignedToProject(resource.data.projectId));
       allow write: if isAdmin();
     }
 
-    // LEADS MANAGEMENT
     match /leads/{leadId} {
       allow read, write: if isAdmin();
-      
-      // Subcollections like lead_logs
       match /{allSubcollections=**} {
         allow read, write: if isAdmin();
       }
     }
 
-    // OPPORTUNITIES MANAGEMENT
     match /opportunities/{opportunityId} {
       allow read, write: if isAdmin();
-
-      // Subcollections like opportunity_logs
       match /{allSubcollections=**} {
         allow read, write: if isAdmin();
       }
     }
 
-    // INVOICES MANAGEMENT
     match /invoices/{invoiceId} {
       allow read, write: if isAdmin();
     }
 
-    // SETTINGS MANAGEMENT
     match /settings/{settingId} {
       allow read, write: if isAdmin();
     }
 
-    // COLLECTION GROUPS
+    // Collection Groups
     match /{path=**}/shifts/{shiftId} {
       allow read: if isAdmin() || (isAuthenticated() && request.auth.uid == resource.data.userId);
       allow write: if isAdmin() || (isAuthenticated() && (
@@ -78,16 +133,15 @@ service cloud.firestore {
         request.auth.uid == resource.data.authorUid
       ));
     }
-    
+
     match /{path=**}/workLogs/{logId} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.authorUid == request.auth.uid);
     }
     
     match /{path=**}/stageChangeLogs/{logId} {
-      allow read: if isAuthenticated();
+      allow read: if isAdmin();
     }
-    // SALARY TRANSACTIONS
+
     match /salary_transactions/{txId} {
       allow read: if isAuthenticated() && (isAdmin() || resource.data.workerId == request.auth.uid);
       allow create: if isAdmin();
