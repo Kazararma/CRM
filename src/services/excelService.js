@@ -17,15 +17,14 @@ export const downloadSkeletonSheet = () => {
 
 export const exportLeadsToExcel = (leadsArray) => {
   const data = leadsArray.map(lead => [
-    lead.projectTitle || '',
-    lead.source || '',
-    lead.category || '',
-    lead.description || '',
-    lead.clientName || '',
-    lead.phoneNumber || '',
+    lead.name || '',
+    lead.place || '',
     lead.email || '',
-    Number(lead.estimatedBilling || 0),
-    Number(lead.estimatedBudget || lead.estimatedBudgetCost || 0)
+    lead.phone || '',
+    lead.linkedin || '',
+    lead.instagram || '',
+    lead.serviceDescription || '',
+    lead.category || ''
   ]);
 
   // Insert headers at the top
@@ -58,15 +57,14 @@ export const parseLeadsFromExcel = (file) => {
         const mappedLeads = rows.map((row, index) => {
           const lead = {
             id: `temp_${index}_${Date.now()}`,
-            projectTitle: String(row[0] || ''),
-            source: String(row[1] || ''),
-            category: String(row[2] || ''),
-            description: String(row[3] || ''),
-            clientName: String(row[4] || ''),
-            phoneNumber: String(row[5] || ''),
-            email: String(row[6] || ''),
-            estimatedBilling: row[7] !== '' ? row[7] : '',
-            estimatedBudget: row[8] !== '' ? row[8] : ''
+            name: String(row[0] || ''),
+            place: String(row[1] || ''),
+            email: String(row[2] || ''),
+            phone: String(row[3] || ''),
+            linkedin: String(row[4] || ''),
+            instagram: String(row[5] || ''),
+            serviceDescription: String(row[6] || ''),
+            category: String(row[7] || '')
           };
           
           lead._errors = validateLeadRow(lead);
@@ -75,7 +73,7 @@ export const parseLeadsFromExcel = (file) => {
         
         // Only return rows that have at least some data
         const nonEmptyLeads = mappedLeads.filter(lead => 
-          lead.projectTitle || lead.clientName || lead.email
+          lead.name || lead.email || lead.phone
         );
         
         resolve(nonEmptyLeads);

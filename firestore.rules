@@ -158,5 +158,27 @@ service cloud.firestore {
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
           == 'super_admin';
     }
+
+    // ─── v2: staging Collection ───────────────────────────────────────────
+    // Staging batches are created by admins during import pipeline.
+    // Workers have zero access.
+    match /staging/{batchId} {
+      allow read, write: if isAdmin();
+
+      match /records/{recordId} {
+        allow read, write: if isAdmin();
+      }
+    }
+
+    // ─── v2: tenants Config (AI Settings, MCP Connectors) ─────────────────
+    // Only super_admins can read/write MCP connector keys and AI settings.
+    match /tenants/{tenantId} {
+      allow read, write: if isSuperAdmin();
+
+      match /config/{configId} {
+        allow read, write: if isSuperAdmin();
+      }
+    }
+
   }
 }

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext'; // Usually useAuth is from AuthContext or similar
+import { useAuth } from '../../context/AuthContext';
 import { useLeads } from '../../hooks/useLeads';
 import { useLeadsMetrics } from '../../hooks/useLeadsMetrics';
 import LeadsMetricsBar from './LeadsMetricsBar';
 import LeadsTimeFilter from './LeadsTimeFilter';
-import LeadsKanbanBoard from './LeadsKanbanBoard';
+import LeadListView from '../../components/leads/LeadListView';
 import CreateLeadModal from '../../components/leads/CreateLeadModal';
-import LeadDetailModal from '../../components/leads/LeadDetailModal';
+import LeadDetailView from '../../components/leads/LeadDetailView';
 
 const LeadsPage = () => {
   const { role } = useAuth();
@@ -71,6 +71,12 @@ const LeadsPage = () => {
           <p className="text-gray-500 mt-1 text-sm">Track prospective clients and negotiate contracts.</p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+          <button 
+            onClick={() => handleCreateLead('neutral')}
+            className="px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-sm"
+          >
+            + Create Lead
+          </button>
           <select 
             value={phaseFilter} 
             onChange={(e) => setPhaseFilter(e.target.value)}
@@ -88,10 +94,9 @@ const LeadsPage = () => {
 
       <LeadsMetricsBar metrics={metrics} />
 
-      <LeadsKanbanBoard 
+      <LeadListView 
         leads={filteredLeads} 
         onLeadClick={handleLeadClick} 
-        onCreateLead={handleCreateLead} 
       />
 
       {/* Modals */}
@@ -101,7 +106,7 @@ const LeadsPage = () => {
         defaultCategory={createDefaultCategory} 
       />
 
-      <LeadDetailModal 
+      <LeadDetailView 
         isOpen={!!selectedLead} 
         onClose={() => setSelectedLead(null)} 
         lead={activeLead} 

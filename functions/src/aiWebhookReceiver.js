@@ -31,6 +31,22 @@ exports.aiWebhookReceiver = onRequest(async (req, res) => {
   const intentToBuy     = structuredOutput.intent_to_buy    === true;
   const extractedBudget = Number(structuredOutput.extracted_budget ?? 0);
 
+  // ── Heuristics for Urgent Alerts ───────────────────────────────────────────
+  let attentionNeeded = false;
+  let isFailed = false;
+
+  const endReason = payload.message?.call?.endReason || '';
+  if (endReason === 'customer-hung-up') {
+    attentionNeeded = true;
+    isFailed = true;
+  }
+  
+  const textToAnalyze = `${transcript} ${callSummary}`.toLowerCase();
+  if (/angry|lawyer|sue|do not call|remove me/i.test(textToAnalyze)) {
+    attentionNeeded = true;
+    isFailed = true;
+  }
+
   if (!leadId) { res.status(400).send('Missing leadId in metadata'); return; }
 
   const db = getFirestore();
@@ -90,7 +106,9 @@ exports.aiWebhookReceiver = onRequest(async (req, res) => {
       // ── Update lead document with call results ────────────────────────────
       const leadUpdate = {
         phase:             newPhase,
-        aiOutreachStatus:  'completed',
+        aiStatus:          isFailed ? 'failed' : 'completed',
+        aiOutreachStatus:  isFailed ? 'failed' : 'completed',
+        attentionNeeded:   attentionNeeded,
         lastCallSummary:   callSummary,
         extractedBudget:   extractedBudget > 0 ? extractedBudget : lead.estimatedBilling,
         updatedAt:         FieldValue.serverTimestamp(),

@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import AgencyAITab from './AgencyAITab';
+import MCPConnectorsTab from './MCPConnectorsTab';
+import SystemDefaultsTab from './SystemDefaultsTab';
+import { Bot, Link as LinkIcon, Settings as SettingsIcon } from 'lucide-react';
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('agencyAI');
@@ -19,21 +22,42 @@ export default function SettingsPage() {
           <nav className="flex flex-col gap-1 p-4">
             <button
               onClick={() => setActiveTab('agencyAI')}
-              className={`text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex items-center gap-2 text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 activeTab === 'agencyAI'
                   ? 'bg-white text-indigo-600 shadow-sm border border-gray-200'
                   : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
-              Agency AI & Telephony
+              <Bot size={18} /> Agency AI & Telephony
             </button>
-            {/* Future tabs can be added here */}
+            <button
+              onClick={() => setActiveTab('mcp')}
+              className={`flex items-center gap-2 text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                activeTab === 'mcp'
+                  ? 'bg-white text-indigo-600 shadow-sm border border-gray-200'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              <LinkIcon size={18} /> MCP Connectors
+            </button>
+            <button
+              onClick={() => setActiveTab('defaults')}
+              className={`flex items-center gap-2 text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                activeTab === 'defaults'
+                  ? 'bg-white text-indigo-600 shadow-sm border border-gray-200'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              <SettingsIcon size={18} /> System Defaults
+            </button>
           </nav>
         </div>
 
         {/* Tab Content Area */}
         <div className="flex-1 p-6 bg-white overflow-y-auto">
           {activeTab === 'agencyAI' && <AgencyAITab />}
+          {activeTab === 'mcp' && <MCPConnectorsTab />}
+          {activeTab === 'defaults' && <SystemDefaultsTab />}
         </div>
       </div>
     </div>

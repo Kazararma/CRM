@@ -69,7 +69,7 @@ At the end of the call, emit a JSON block:
             phoneNumberId: settings.vapi.phoneNumberId,  // Admin-configured Vapi number
             customer:      { number: lead.phoneNumber, name: safeName },
             assistantOverrides: {
-              model:         { provider: 'openai', model: 'gpt-4o-mini' },
+              model:         { provider: 'google', model: 'gemini-2.0-flash' },
               firstMessage:  `Hi, am I speaking with ${safeName}?`,
               systemPrompt:  callSystemPrompt,
             },

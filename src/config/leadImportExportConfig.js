@@ -1,11 +1,10 @@
 export const LEAD_EXCEL_COLUMNS = [
-  'Project Title',
-  'Source',
-  'Category',
-  'Description',
-  'Client Name',
-  'Phone Number',
-  'Email Address',
-  'Estimated Billing',
-  'Estimated Budget Cost'
+  'Name',
+  'Place',
+  'Email',
+  'Phone',
+  'LinkedIn',
+  'Instagram',
+  'Service Description',
+  'Category'
 ];

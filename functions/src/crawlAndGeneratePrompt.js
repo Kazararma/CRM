@@ -30,6 +30,7 @@ exports.crawlAndGeneratePrompt = onCall(
     timeoutSeconds: 300,
     memory:         '512MiB',
     cors:           true,
+    secrets:        ['GROQ_API_KEY'],  // Groq: generous free tier — 14,400 req/day, Llama 3.3 70B
   },
   async (request) => {
     if (!request.auth) throw new HttpsError('unauthenticated', 'Not authenticated.');

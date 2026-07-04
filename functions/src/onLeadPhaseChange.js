@@ -79,6 +79,12 @@ exports.onLeadPhaseChange = onDocumentUpdated(
     // Only trigger when phase changes TO 'proposal'
     if (before.phase === after.phase || after.phase !== 'proposal') return;
 
+    // Guard: Do not send automated proposal if attention is needed
+    if (after.attentionNeeded === true) {
+      console.log(`[onLeadPhaseChange] Aborting proposal dispatch for lead ${leadId} due to attentionNeeded flag.`);
+      return;
+    }
+
     // Prevent re-firing if proposal was already dispatched
     if (after.proposalDispatched === true) return;
 
