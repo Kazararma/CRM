@@ -1,4 +1,4 @@
-# CRM 🌊
+# CRM 🚀
 
 > A real-time, enterprise-grade business management platform that seamlessly bridges client acquisition, project execution, automated payroll, and financial invoicing.
 

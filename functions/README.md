@@ -1,6 +1,6 @@
-# Wavelet CRM - Firebase Cloud Functions
+# CRM - Firebase Cloud Functions
 
-This directory contains the backend logic and automation scripts for the Wavelet CRM SaaS platform, deployed as Firebase Cloud Functions.
+This directory contains the backend logic and automation scripts for the CRM SaaS platform, deployed as Firebase Cloud Functions.
 
 ## 🚀 Key Modules
 
