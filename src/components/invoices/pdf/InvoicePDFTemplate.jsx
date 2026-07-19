@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page, Text, View, Image } from '@react-pdf/renderer';
+import { Document, Page, Text, View } from '@react-pdf/renderer';
 import { styles } from './pdfStyles';
 
 export const InvoicePDFTemplate = ({ invoice }) => {
@@ -23,9 +23,6 @@ export const InvoicePDFTemplate = ({ invoice }) => {
             <Text style={styles.invoiceTitle}>INVOICE</Text>
             <Text style={styles.invoiceMeta}>Invoice Number: #{invoice.invoiceNumber}</Text>
             <Text style={styles.invoiceMeta}>Invoice Date: {formattedDate}</Text>
-          </View>
-          <View style={{ alignItems: 'flex-end' }}>
-            <Image src="/crm-logo.png" style={styles.logo} />
           </View>
         </View>
 

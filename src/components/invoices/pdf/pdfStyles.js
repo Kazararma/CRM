@@ -31,11 +31,6 @@ export const styles = StyleSheet.create({
     fontFamily: 'Helvetica-Bold',
     color: COLORS.black,
   },
-  logo: {
-    width: 80,
-    height: 80,
-    objectFit: 'contain',
-  },
   invoiceMeta: {
     fontSize: 10,
     color: COLORS.mediumGrey,
